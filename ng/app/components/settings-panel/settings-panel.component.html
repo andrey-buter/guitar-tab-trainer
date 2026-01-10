@@ -1,0 +1,192 @@
+<div class="settings-panel" [class.open]="isOpen">
+  <div class="settings-header">
+    <h2>{{ 'SETTINGS.TITLE' | translate }}</h2>
+    <button class="close-btn" (click)="close()" [attr.aria-label]="'SETTINGS.CLOSE' | translate">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    </button>
+  </div>
+
+  <div class="settings-content">
+    <!-- Настройки отображения -->
+    <section class="settings-section">
+      <h3>{{ 'SETTINGS.DISPLAY' | translate }}</h3>
+
+      <!-- Что заменять названиями нот -->
+      <div class="setting-item">
+        <label class="setting-label">{{ 'SETTINGS.NOTE_REPLACEMENT' | translate }}</label>
+        <select
+          [(ngModel)]="settings.display.noteNamesTarget"
+          (change)="updateDisplaySettings()"
+          class="select"
+        >
+          <option value="none">{{ 'OPTIONS.NOTE_REPLACEMENT.NONE' | translate }}</option>
+          <option value="tab-numbers">{{ 'OPTIONS.NOTE_REPLACEMENT.TAB_NUMBERS' | translate }}</option>
+          <option value="tab-numbers-octave">{{ 'OPTIONS.NOTE_REPLACEMENT.TAB_NUMBERS_OCTAVE' | translate }}</option>
+          <option value="scale-degrees">{{ 'OPTIONS.NOTE_REPLACEMENT.SCALE_DEGREES' | translate }}</option>
+          <option value="scale-degrees-roman">{{ 'OPTIONS.NOTE_REPLACEMENT.SCALE_DEGREES_ROMAN' | translate }}</option>
+        </select>
+      </div>
+
+      <!-- Механизм отображения (только если выбрана замена) -->
+      <div class="setting-item" *ngIf="settings.display.noteNamesTarget !== 'none'">
+        <label class="setting-label">{{ 'SETTINGS.DISPLAY_MECHANISM' | translate }}</label>
+        <p class="setting-description">
+          {{ 'SETTINGS.DISPLAY_MECHANISM_DESC' | translate }}
+        </p>
+        <select
+          [(ngModel)]="settings.display.noteDisplayMechanism"
+          (change)="updateDisplaySettings()"
+          class="select"
+        >
+          <option value="overlay">{{ 'OPTIONS.DISPLAY_MECHANISM.OVERLAY' | translate }}</option>
+          <option value="replace">{{ 'OPTIONS.DISPLAY_MECHANISM.REPLACE' | translate }}</option>
+        </select>
+      </div>
+
+      <div class="setting-item">
+        <label class="setting-label">{{ 'SETTINGS.ZOOM' | translate }}: {{ settings.display.zoom * 100 }}%</label>
+        <input
+          type="range"
+          min="0.5"
+          max="2"
+          step="0.1"
+          [(ngModel)]="settings.display.zoom"
+          (change)="updateDisplaySettings()"
+          class="slider"
+        >
+      </div>
+
+      <div class="setting-item">
+        <label class="setting-label">{{ 'SETTINGS.THEME' | translate }}</label>
+        <select
+          [(ngModel)]="settings.display.theme"
+          (change)="updateDisplaySettings()"
+          class="select"
+        >
+          <option value="light">{{ 'OPTIONS.THEME.LIGHT' | translate }}</option>
+          <option value="dark">{{ 'OPTIONS.THEME.DARK' | translate }}</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Настройки нотации -->
+    <section class="settings-section">
+      <h3>{{ 'SETTINGS.NOTATION' | translate }}</h3>
+
+      <!-- Режим отображения нотации -->
+      <div class="setting-item">
+        <label class="setting-label">{{ 'SETTINGS.DISPLAY_MODE' | translate }}</label>
+        <p class="setting-description">
+          {{ 'SETTINGS.DISPLAY_MODE_DESC' | translate }}
+        </p>
+
+        <div class="radio-group">
+          <label class="radio-label">
+            <input
+              type="radio"
+              name="notationMode"
+              value="staff-only"
+              [(ngModel)]="settings.notation.notationMode"
+              (change)="updateNotationSettings()"
+            >
+            <span class="radio-button"></span>
+            <span class="radio-text">
+              <strong>{{ 'OPTIONS.NOTATION_MODE.STAFF_ONLY' | translate }}</strong>
+            </span>
+          </label>
+
+          <label class="radio-label">
+            <input
+              type="radio"
+              name="notationMode"
+              value="tab-only"
+              [(ngModel)]="settings.notation.notationMode"
+              (change)="updateNotationSettings()"
+            >
+            <span class="radio-button"></span>
+            <span class="radio-text">
+              <strong>{{ 'OPTIONS.NOTATION_MODE.TAB_ONLY' | translate }}</strong>
+            </span>
+          </label>
+
+          <label class="radio-label">
+            <input
+              type="radio"
+              name="notationMode"
+              value="both"
+              [(ngModel)]="settings.notation.notationMode"
+              (change)="updateNotationSettings()"
+            >
+            <span class="radio-button"></span>
+            <span class="radio-text">
+              <strong>{{ 'OPTIONS.NOTATION_MODE.BOTH' | translate }}</strong>
+            </span>
+          </label>
+        </div>
+      </div>
+
+      <div class="setting-item">
+        <label class="setting-label">{{ 'SETTINGS.NOTE_NAME_FORMAT' | translate }}</label>
+        <select
+          [(ngModel)]="settings.notation.noteNameFormat"
+          (change)="updateNotationSettings()"
+          class="select"
+        >
+          <option value="english">{{ 'OPTIONS.NOTE_FORMAT.ENGLISH' | translate }}</option>
+          <option value="german">{{ 'OPTIONS.NOTE_FORMAT.GERMAN' | translate }}</option>
+          <option value="solfege">{{ 'OPTIONS.NOTE_FORMAT.SOLFEGE' | translate }}</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Настройки воспроизведения -->
+    <section class="settings-section">
+      <h3>{{ 'SETTINGS.PLAYBACK' | translate }}</h3>
+
+      <div class="setting-item">
+        <label class="setting-label">{{ 'SETTINGS.SPEED' | translate }}: {{ settings.playback.speed }}%</label>
+        <input
+          type="range"
+          min="25"
+          max="200"
+          step="5"
+          [(ngModel)]="settings.playback.speed"
+          (change)="updatePlaybackSettings()"
+          class="slider"
+        >
+      </div>
+
+      <div class="setting-item">
+        <label class="toggle-label">
+          <input
+            type="checkbox"
+            [(ngModel)]="settings.playback.metronomeEnabled"
+            (change)="updatePlaybackSettings()"
+          >
+          <span class="toggle-text">{{ 'SETTINGS.METRONOME' | translate }}</span>
+        </label>
+      </div>
+
+      <div class="setting-item">
+        <label class="toggle-label">
+          <input
+            type="checkbox"
+            [(ngModel)]="settings.playback.countInEnabled"
+            (change)="updatePlaybackSettings()"
+          >
+          <span class="toggle-text">{{ 'SETTINGS.COUNT_IN' | translate }}</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Сброс настроек -->
+    <section class="settings-section">
+      <button class="reset-btn" (click)="resetSettings()">
+        {{ 'SETTINGS.RESET' | translate }}
+      </button>
+    </section>
+  </div>
+</div>

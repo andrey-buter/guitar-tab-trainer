@@ -1,0 +1,291 @@
+<div class="app-container">
+  <!-- Заголовок -->
+  <header class="app-header">
+    <div class="header-content">
+      <div class="header-main">
+        <h1>{{ 'APP.TITLE' | translate }}</h1>
+        <div class="song-title" *ngIf="songTitle">{{ songTitle }}</div>
+        <!-- Language switcher -->
+        <div class="language-switcher">
+          <button
+            class="lang-btn"
+            [class.active]="getCurrentLanguage() === 'en'"
+            (click)="switchLanguage('en')"
+            title="English">
+            EN
+          </button>
+          <button
+            class="lang-btn"
+            [class.active]="getCurrentLanguage() === 'ru'"
+            (click)="switchLanguage('ru')"
+            title="Русский">
+            RU
+          </button>
+        </div>
+      </div>
+
+      <!-- Индикатор загрузки файла по URL -->
+      <div class="url-load-indicator" *ngIf="hasActiveLoad() || hasLoadError()">
+        <div class="load-status" *ngIf="hasActiveLoad()">
+          <div class="spinner"></div>
+          <span class="load-message">{{ getLoadStatusMessage() }}</span>
+        </div>
+
+        <div class="load-error" *ngIf="hasLoadError()">
+          <div class="error-icon">⚠️</div>
+          <span class="error-message">{{ getLoadStatusMessage() }}</span>
+          <div class="error-actions">
+            <button class="retry-btn" (click)="retryLoadFromUrl()">
+              {{ getCurrentLanguage() === 'ru' ? 'Повторить' : 'Retry' }}
+            </button>
+            <button class="close-btn" (click)="clearLoadError()">
+              {{ getCurrentLanguage() === 'ru' ? 'Закрыть' : 'Close' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs for display mode switching -->
+      <div class="header-tabs">
+        <button
+          class="tab-btn"
+          [class.active]="getCurrentNoteNamesTarget() === 'none'"
+          (click)="setNoteNamesTarget('none')">
+          {{ 'TABS.DEFAULT' | translate }}
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="getCurrentNoteNamesTarget() === 'tab-numbers'"
+          (click)="setNoteNamesTarget('tab-numbers')">
+          {{ 'TABS.NOTE_NAMES' | translate }}
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="getCurrentNoteNamesTarget() === 'tab-numbers-octave'"
+          (click)="setNoteNamesTarget('tab-numbers-octave')">
+          {{ 'TABS.NOTE_NAMES_OCTAVE' | translate }}
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="getCurrentNoteNamesTarget() === 'scale-degrees'"
+          (click)="setNoteNamesTarget('scale-degrees')">
+          {{ 'TABS.FRETBOARD_DEGREES' | translate }}
+        </button>
+        <button
+          class="tab-btn"
+          [class.active]="getCurrentNoteNamesTarget() === 'scale-degrees-roman'"
+          (click)="setNoteNamesTarget('scale-degrees-roman')">
+          {{ 'TABS.ROMAN_NUMERALS' | translate }}
+        </button>
+      </div>
+
+      <div class="music-info" *ngIf="keyInfo || tuningInfo">
+        <div class="info-item" *ngIf="keyInfo">
+          <span class="info-label">{{ 'HEADER.KEY' | translate }}</span>
+          <span class="info-value key-badge">
+            {{ getCurrentLanguage() === 'ru' ? keyInfo.keyNameRu : keyInfo.keyName }}
+            <span class="confidence" [title]="'Уверенность: ' + (keyInfo.confidence * 100).toFixed(0) + '%'">
+              ({{ (keyInfo.confidence * 100).toFixed(0) }}%)
+            </span>
+          </span>
+        </div>
+        <div class="info-item" *ngIf="tuningInfo">
+          <span class="info-label">{{ 'HEADER.TUNING' | translate }}:</span>
+          <span class="info-value tuning-badge">
+            {{ tuningInfo.tuningName }}
+            <span class="tuning-notes">[{{ getFormattedTuning() }}]</span>
+          </span>
+        </div>
+
+        <!-- Кнопка для открытия панели дорожек -->
+        <div class="info-item" *ngIf="tracks.length > 1">
+          <button class="tracks-toggle-btn"
+                  [class.active]="showTracksPanel"
+                  (click)="toggleTracksPanel()"
+                  [title]="'HEADER.TRACKS' | translate">
+            🎸 {{ 'HEADER.TRACKS' | translate }} ({{ tracks.length }})
+          </button>
+        </div>
+
+        <!-- Кнопка для открытия памятки октав -->
+        <div class="info-item">
+          <button class="octaves-toggle-btn"
+                  [class.active]="showFretboardOctaves"
+                  (click)="toggleFretboardOctaves()"
+                  [title]="getCurrentLanguage() === 'ru' ? 'Октавы на грифе' : 'Fretboard Octaves'">
+            🎵 {{ getCurrentLanguage() === 'ru' ? 'Октавы' : 'Octaves' }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Оверлей с затемнением -->
+      <div class="tracks-backdrop"
+           *ngIf="showTracksPanel || showFretboardOctaves"
+           (click)="showTracksPanel ? toggleTracksPanel() : toggleFretboardOctaves()"></div>
+
+      <!-- Панель выбора дорожек -->
+      <div class="tracks-panel" *ngIf="showTracksPanel && tracks.length > 0">
+        <div class="tracks-panel-header">
+          <span class="tracks-panel-title">{{ 'HEADER.TRACKS' | translate }}</span>
+          <button class="tracks-panel-close" (click)="toggleTracksPanel()">✕</button>
+        </div>
+        <div class="tracks-list">
+          <div class="track-item"
+               *ngFor="let track of tracks"
+               [class.track-visible]="track.isVisible"
+               [class.track-muted]="track.isMuted"
+               [class.track-solo]="track.isSolo">
+            <div class="track-info">
+              <input type="checkbox"
+                     class="track-visibility-check"
+                     [checked]="track.isVisible"
+                     (change)="toggleTrackVisibility(track.index)"
+                     [id]="'track-' + track.index">
+              <label [for]="'track-' + track.index" class="track-name">
+                <span class="track-number">{{ track.index + 1 }}.</span>
+                {{ track.name }}
+                <span class="track-instrument">({{ track.instrument }})</span>
+              </label>
+            </div>
+            <div class="track-controls">
+              <button class="track-control-btn mute-btn"
+                      [class.active]="track.isMuted"
+                      (click)="toggleTrackMute(track.index)"
+                      title="{{ track.isMuted ? 'Unmute' : 'Mute' }}">
+                🔇
+              </button>
+              <button class="track-control-btn solo-btn"
+                      [class.active]="track.isSolo"
+                      (click)="toggleTrackSolo(track.index)"
+                      title="{{ track.isSolo ? 'Unsolo' : 'Solo' }}">
+                🔊
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Памятка октав на грифе -->
+      <div class="fretboard-octaves-panel" *ngIf="showFretboardOctaves">
+        <div class="fretboard-panel-header">
+          <span class="fretboard-panel-title">
+            {{ getCurrentLanguage() === 'ru' ? 'Октавы на гитарном грифе' : 'Guitar Fretboard Octaves' }}
+          </span>
+          <button class="fretboard-panel-close" (click)="toggleFretboardOctaves()">✕</button>
+        </div>
+
+        <div class="fretboard-legend">
+          <div class="legend-item" *ngFor="let octave of [2, 3, 4, 5, 6, 7]">
+            <span class="legend-color" [style.background-color]="getOctaveColor(octave)"></span>
+            <span class="legend-text">
+              {{ getCurrentLanguage() === 'ru' ? 'Октава' : 'Octave' }} {{ octave }}
+            </span>
+          </div>
+        </div>
+
+        <div class="fretboard-container">
+          <div class="fretboard-grid">
+            <!-- Заголовок с номерами ладов -->
+            <div class="fret-header">
+              <div class="string-label">{{ getCurrentLanguage() === 'ru' ? 'Струна' : 'String' }}</div>
+              <div class="fret-number" *ngFor="let fret of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]">
+                {{ fret }}
+              </div>
+            </div>
+
+            <!-- Струны с ладами -->
+            <div class="string-row" *ngFor="let stringNum of [1, 2, 3, 4, 5, 6]">
+              <div class="string-label">{{ stringNum }}</div>
+              <div class="fret-cell"
+                   *ngFor="let fret of [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]"
+                   [style.background-color]="getOctaveColor(getOctaveForMidi([40, 45, 50, 55, 59, 64][stringNum - 1] + fret))"
+                   [class.fret-marker]="[3, 5, 7, 9, 12, 15, 17, 19, 21, 24].includes(fret)">
+                <span class="fret-octave">
+                  {{ getOctaveForMidi([40, 45, 50, 55, 59, 64][stringNum - 1] + fret) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="fretboard-info">
+          <p>{{ getCurrentLanguage() === 'ru'
+            ? 'Стандартный строй: E-A-D-G-B-E (6-я струна → 1-я струна)'
+            : 'Standard tuning: E-A-D-G-B-E (6th string → 1st string)' }}</p>
+          <p>{{ getCurrentLanguage() === 'ru'
+            ? 'Каждая ячейка показывает номер октавы для данной позиции на грифе'
+            : 'Each cell shows the octave number for that position on the fretboard' }}</p>
+        </div>
+      </div>
+
+      <!-- Таблица ступеней лада (показывается только в режиме scale-degrees) -->
+      <div class="scale-degrees-table" *ngIf="isScaleDegreesMode() && scaleDegrees.length > 0">
+        <div class="table-header">
+          <span class="table-title">{{ 'HEADER.SCALE_DEGREES' | translate }}</span>
+          <div class="table-toggles">
+            <label class="toggle-label">
+              <input type="checkbox" [(ngModel)]="showScaleNotes">
+              <span>{{ 'SCALE_DEGREES.NOTES' | translate }}</span>
+            </label>
+          </div>
+        </div>
+        <div class="degrees-grid-container">
+          <!-- Строка с короткими обозначениями -->
+          <div class="degrees-row row-short">
+            <ng-container *ngFor="let degree of scaleDegrees">
+              <div class="degree-cell cell-short">{{ degree.short }}</div>
+              <div class="interval-spacer"></div>
+            </ng-container>
+          </div>
+
+          <!-- Строка с английскими названиями -->
+          <div class="degrees-row row-english" *ngIf="getCurrentLanguage() === 'en'">
+            <ng-container *ngFor="let degree of scaleDegrees">
+              <div class="degree-cell cell-english">{{ degree.englishFull }}</div>
+              <div class="interval-spacer"></div>
+            </ng-container>
+          </div>
+
+          <!-- Строка с русскими названиями -->
+          <div class="degrees-row row-russian" *ngIf="getCurrentLanguage() === 'ru'">
+            <ng-container *ngFor="let degree of scaleDegrees">
+              <div class="degree-cell cell-russian">{{ degree.russianFull }}</div>
+              <div class="interval-spacer"></div>
+            </ng-container>
+          </div>
+
+          <!-- Строка с нотами гаммы (опционально) -->
+          <div class="degrees-row row-notes" *ngIf="showScaleNotes && scaleNotes.length > 0">
+            <ng-container *ngFor="let note of scaleNotes">
+              <div class="degree-cell cell-note">{{ note }}</div>
+              <div class="interval-spacer"></div>
+            </ng-container>
+          </div>
+
+          <!-- Строка с интервалами (МЕЖДУ ступенями) -->
+          <div class="degrees-row row-intervals">
+            <ng-container *ngFor="let degree of scaleDegrees; let i = index">
+              <div class="interval-placeholder"></div>
+              <div class="interval-cell">
+                <span class="interval-label">{{ getCurrentLanguage() === 'ru' ? (degree.interval === 'T' ? 'Тон' : 'Полутон') : degree.intervalEnglish }}</span>
+              </div>
+            </ng-container>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Панель управления -->
+  <app-player-controls
+    [onOpenSettings]="openSettings.bind(this)">
+  </app-player-controls>
+
+  <!-- Область отображения табулатуры -->
+  <div class="tablature-container">
+    <div #alphaTab class="alphatab-viewport"></div>
+  </div>
+
+  <!-- Панель настроек -->
+  <app-settings-panel #settingsPanel></app-settings-panel>
+</div>

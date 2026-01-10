@@ -1,0 +1,1233 @@
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #f5f5f5;
+}
+
+.app-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 10px 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.header-main {
+  flex: 0 0 auto;
+  min-width: 250px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-header h1 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+/* Language switcher */
+.language-switcher {
+  display: flex;
+  gap: 2px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 2px;
+  border-radius: 6px;
+  backdrop-filter: blur(10px);
+}
+
+.lang-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.6);
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+  min-width: 32px;
+}
+
+.lang-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.lang-btn.active {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+}
+
+/* Табы для переключения режимов */
+.header-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 4px;
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  flex: 0 0 auto;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.tab-btn.active {
+  background: rgba(255, 255, 255, 0.25);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.song-title {
+  font-size: 18px;
+  font-weight: 500;
+  opacity: 0.95;
+  margin-top: 4px;
+}
+
+.music-info {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 10px 16px;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+  min-width: 200px;
+}
+
+.info-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.9;
+  font-weight: 600;
+}
+
+.info-value {
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.key-badge {
+  color: #fff;
+}
+
+.confidence {
+  font-size: 12px;
+  opacity: 0.8;
+  font-weight: 400;
+}
+
+.tuning-badge {
+  color: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.tuning-notes {
+  font-size: 12px;
+  opacity: 0.85;
+  font-weight: 400;
+  font-family: 'Courier New', monospace;
+}
+
+/* Таблица ступеней лада */
+.scale-degrees-table {
+  width: 100%;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  padding: 4px 0;
+}
+
+.table-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.95;
+  font-weight: 600;
+}
+
+.table-toggles {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 500;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.2s;
+}
+
+.toggle-label:hover {
+  opacity: 1;
+}
+
+.toggle-label input[type="checkbox"] {
+  cursor: pointer;
+  width: 14px;
+  height: 14px;
+}
+
+.toggle-label span {
+  user-select: none;
+}
+
+.degrees-grid-container {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 8px;
+}
+
+.degrees-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr 40px);
+  align-items: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.degrees-row:last-child {
+  border-bottom: none;
+}
+
+.degree-cell {
+  text-align: center;
+  padding: 12px 8px;
+  font-weight: 600;
+}
+
+.interval-spacer {
+  width: 40px;
+}
+
+/* Строка с короткими обозначениями */
+.row-short {
+  background: linear-gradient(135deg, #f0f4ff 0%, #e8edff 100%);
+}
+
+.row-short .cell-short {
+  font-size: 18px;
+  font-weight: 700;
+  color: #667eea;
+  padding: 8px 8px;
+}
+
+/* Строка с нотами гаммы */
+.row-notes {
+  background: linear-gradient(135deg, #fff9e6 0%, #fff3cc 100%);
+}
+
+.row-notes .cell-note {
+  font-size: 15px;
+  font-weight: 700;
+  color: #d97706;
+  padding: 10px 8px;
+}
+
+/* Строка с английскими названиями */
+.row-english {
+  background: #ffffff;
+}
+
+.row-english .cell-english {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2d3748;
+  padding: 10px 8px;
+}
+
+/* Строка с русскими названиями */
+.row-russian {
+  background: #fafafa;
+}
+
+.row-russian .cell-russian {
+  font-size: 12px;
+  font-weight: 500;
+  color: #4a5568;
+  padding: 10px 8px;
+}
+
+/* Строка с интервалами */
+.row-intervals {
+  background: transparent;
+  padding: 8px 0;
+  position: relative;
+}
+
+.interval-placeholder {
+  /* Пустое место под ступенями */
+}
+
+.interval-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  text-align: center;
+}
+
+.interval-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #c53030;
+  white-space: nowrap;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .degrees-row {
+    grid-template-columns: repeat(7, 1fr 30px);
+  }
+
+  .interval-spacer {
+    width: 30px;
+  }
+
+  .interval-cell {
+    width: 30px;
+  }
+
+  .degree-cell {
+    padding: 8px 4px;
+    font-size: 11px;
+  }
+
+  .row-short .cell-short {
+    font-size: 16px;
+    padding: 8px 4px;
+  }
+
+  .row-notes .cell-note {
+    font-size: 13px;
+    padding: 8px 4px;
+  }
+
+  .row-english .cell-english {
+    font-size: 11px;
+    padding: 8px 4px;
+  }
+
+  .row-russian .cell-russian {
+    font-size: 10px;
+    padding: 8px 4px;
+  }
+
+  .interval-label {
+    font-size: 9px;
+  }
+}
+
+.degree-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.degree-short {
+  font-weight: 700;
+  font-size: 13px;
+  color: #fff;
+  min-width: 28px;
+}
+
+.degree-sep {
+  opacity: 0.5;
+}
+
+.degree-english {
+  font-weight: 500;
+  opacity: 0.9;
+}
+
+.degree-russian {
+  opacity: 0.85;
+  font-style: italic;
+}
+
+.tablature-container {
+  flex: 1;
+  overflow: auto;
+  background: white;
+  position: relative;
+}
+
+.alphatab-viewport {
+  width: 100%;
+  height: 100%;
+}
+
+/* AlphaTab Customization */
+:host ::ng-deep .at-cursor-bar {
+  /* Цвет фона такта при воспроизведении */
+  background: rgba(255, 242, 0, 0.25);
+}
+
+:host ::ng-deep .at-selection div {
+  /* Цвет фона выделения */
+  background: rgba(102, 126, 234, 0.2);
+}
+
+:host ::ng-deep .at-cursor-beat {
+  /* Курсор бита */
+  background: rgba(102, 126, 234, 0.75);
+  width: 3px;
+}
+
+:host ::ng-deep .at-highlight * {
+  /* Цвет музыкальных символов при воспроизведении */
+  fill: #667eea;
+  stroke: #667eea;
+}
+
+/* Стили для замены цифр табулатуры названиями нот */
+
+/* Механизм OVERLAY - буквы поверх полупрозрачных цифр */
+:host ::ng-deep .note-target-tab-numbers.note-mechanism-overlay .at-tab-number {
+  opacity: 0.15 !important;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+/* Механизм REPLACE - цифры полностью скрыты */
+:host ::ng-deep .note-target-tab-numbers.note-mechanism-replace .at-tab-number {
+  color: transparent !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Размер букв в режиме Replace */
+:host ::ng-deep .note-target-tab-numbers.note-mechanism-replace .note-name-label {
+  font-size: 16px !important;
+  font-weight: bold !important;
+  color: #667eea !important;
+}
+
+/* Overlay контейнер для обоих режимов */
+:host ::ng-deep #note-names-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Стили для лейблов нот */
+:host ::ng-deep .note-name-label {
+  color: #667eea;
+  font-weight: bold;
+  /* Белый фон для скрытия цифр под буквами */
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* Уменьшенный шрифт когда отображаются октавы */
+:host ::ng-deep .show-octave-numbers .note-name-label {
+  font-size: 11px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+  .app-header {
+    padding: 16px;
+  }
+
+  .app-header h1 {
+    font-size: 22px;
+  }
+
+  .header-content {
+    gap: 12px;
+  }
+
+  .header-main {
+    min-width: 200px;
+  }
+
+  .header-tabs {
+    width: 100%;
+    justify-content: center;
+    order: 3; /* Перемещаем табы вниз на мобильных */
+  }
+
+  .tab-btn {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .music-info {
+    order: 2;
+    width: 100%;
+  }
+
+  .scale-degrees-table {
+    order: 4;
+    width: 100%;
+  }
+}
+
+/* Скроллбар */
+.tablature-container::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+.tablature-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.tablature-container::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 5px;
+}
+
+.tablature-container::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Кнопка открытия панели дорожек */
+.tracks-toggle-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  backdrop-filter: blur(10px);
+}
+
+.tracks-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.tracks-toggle-btn.active {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Backdrop для оверлея */
+.tracks-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Панель дорожек как оверлей */
+.tracks-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  min-width: 400px;
+  max-width: 90vw;
+  max-height: 80vh;
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -55%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.tracks-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.tracks-panel-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #667eea;
+}
+
+.tracks-panel-close {
+  background: transparent;
+  border: none;
+  color: #667eea;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.tracks-panel-close:hover {
+  background: rgba(102, 126, 234, 0.1);
+  transform: rotate(90deg);
+}
+
+/* Список дорожек */
+.tracks-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.track-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.track-item:hover {
+  border-color: #667eea;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+}
+
+.track-item.track-visible {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
+}
+
+.track-item.track-muted {
+  opacity: 0.6;
+}
+
+.track-item.track-solo {
+  border-color: #4caf50;
+  background: rgba(76, 175, 80, 0.05);
+}
+
+/* Информация о дорожке */
+.track-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.track-visibility-check {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #667eea;
+}
+
+.track-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  user-select: none;
+}
+
+.track-number {
+  color: #667eea;
+  font-weight: 700;
+  min-width: 24px;
+}
+
+.track-instrument {
+  color: #888;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+/* Кнопки управления дорожкой */
+.track-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.track-control-btn {
+  background: rgba(102, 126, 234, 0.1);
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.track-control-btn:hover {
+  background: rgba(102, 126, 234, 0.2);
+  transform: scale(1.1);
+}
+
+.track-control-btn.active {
+  background: #667eea;
+  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.4);
+}
+
+.track-control-btn.mute-btn.active {
+  background: #f44336;
+  box-shadow: 0 2px 6px rgba(244, 67, 54, 0.4);
+}
+
+.track-control-btn.solo-btn.active {
+  background: #4caf50;
+  box-shadow: 0 2px 6px rgba(76, 175, 80, 0.4);
+}
+
+/* Скроллбар для списка дорожек */
+.tracks-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.tracks-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+
+.tracks-list::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.tracks-list::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Адаптивность для панели дорожек */
+@media (max-width: 768px) {
+  .tracks-panel {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    max-width: 90%;
+    max-height: 80vh;
+  }
+
+  .tracks-list {
+    max-height: calc(80vh - 100px);
+  }
+
+  .track-name {
+    font-size: 13px;
+  }
+
+  .track-instrument {
+    display: none;
+  }
+}
+
+/* Кнопка октав */
+.octaves-toggle-btn {
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: white;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  backdrop-filter: blur(10px);
+}
+
+.octaves-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.octaves-toggle-btn.active {
+  background: rgba(255, 255, 255, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Панель памятки октав */
+.fretboard-octaves-panel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  max-width: 95vw;
+  max-height: 85vh;
+  overflow: auto;
+  animation: slideDown 0.3s ease-out;
+}
+
+.fretboard-panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+}
+
+.fretboard-panel-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #667eea;
+}
+
+.fretboard-panel-close {
+  background: transparent;
+  border: none;
+  color: #667eea;
+  font-size: 20px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.fretboard-panel-close:hover {
+  background: rgba(102, 126, 234, 0.1);
+  transform: rotate(90deg);
+}
+
+/* Легенда октав */
+.fretboard-legend {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+  padding: 12px;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 8px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legend-color {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+}
+
+.legend-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2d3748;
+}
+
+/* Контейнер грифа */
+.fretboard-container {
+  overflow-x: auto;
+  margin-bottom: 16px;
+  background: white;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.fretboard-grid {
+  display: inline-block;
+  min-width: max-content;
+}
+
+/* Заголовок с номерами ладов */
+.fret-header {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 4px;
+}
+
+.fret-number {
+  width: 32px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 4px 4px 0 0;
+}
+
+/* Строка струны */
+.string-row {
+  display: flex;
+  gap: 2px;
+  margin-bottom: 2px;
+}
+
+.string-label {
+  width: 48px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 4px;
+}
+
+/* Ячейка лада */
+.fret-cell {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.fret-cell:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Маркеры ладов (3, 5, 7, 9, 12 и т.д.) */
+.fret-cell.fret-marker {
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.3);
+}
+
+.fret-octave {
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Информация о грифе */
+.fretboard-info {
+  padding: 12px;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 8px;
+  font-size: 13px;
+  color: #4a5568;
+  line-height: 1.6;
+}
+
+.fretboard-info p {
+  margin: 4px 0;
+}
+
+.fretboard-info p:first-child {
+  font-weight: 600;
+  color: #667eea;
+}
+
+/* Скроллбар для панели октав */
+.fretboard-octaves-panel::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.fretboard-octaves-panel::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.fretboard-octaves-panel::-webkit-scrollbar-thumb {
+  background: #667eea;
+  border-radius: 4px;
+}
+
+.fretboard-octaves-panel::-webkit-scrollbar-thumb:hover {
+  background: #5a67d8;
+}
+
+.fretboard-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.fretboard-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.fretboard-container::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 4px;
+}
+
+.fretboard-container::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* Адаптивность для памятки октав */
+@media (max-width: 768px) {
+  .fretboard-octaves-panel {
+    max-width: 98vw;
+    max-height: 90vh;
+    padding: 12px;
+  }
+
+  .fretboard-panel-title {
+    font-size: 16px;
+  }
+
+  .fretboard-legend {
+    gap: 8px;
+  }
+
+  .legend-color {
+    width: 20px;
+    height: 20px;
+  }
+
+  .legend-text {
+    font-size: 11px;
+  }
+
+  .fret-cell {
+    width: 28px;
+    height: 28px;
+  }
+
+  .fret-number {
+    width: 28px;
+    font-size: 9px;
+  }
+
+  .fret-octave {
+    font-size: 11px;
+  }
+
+  .string-label {
+    width: 40px;
+    height: 28px;
+    font-size: 11px;
+  }
+
+  .fretboard-info {
+    font-size: 11px;
+  }
+}
+
+/* URL Load Indicator Styles */
+.url-load-indicator {
+  margin-top: 10px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.load-status {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+}
+
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.load-message {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.load-error {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: white;
+  background: rgba(255, 107, 107, 0.2);
+  border: 1px solid rgba(255, 107, 107, 0.3);
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+.error-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.error-message {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.error-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.retry-btn, .close-btn {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.retry-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.retry-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.close-btn {
+  background: rgba(255, 107, 107, 0.3);
+  color: white;
+  border: 1px solid rgba(255, 107, 107, 0.5);
+}
+
+.close-btn:hover {
+  background: rgba(255, 107, 107, 0.4);
+  transform: translateY(-1px);
+}
+
+/* Mobile responsive for load indicator */
+@media (max-width: 768px) {
+  .error-actions {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .retry-btn, .close-btn {
+    width: 100%;
+  }
+}

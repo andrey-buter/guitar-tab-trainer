@@ -1,0 +1,47 @@
+<div class="player-controls">
+  <div class="controls-group">
+    <!-- Загрузка файла -->
+    <label class="file-btn" [title]="'APP.LOAD_FILE' | translate">
+      <input
+        type="file"
+        accept=".gp,.gp3,.gp4,.gp5,.gpx,.gp6,.gp7"
+        (change)="loadFile($event)"
+        hidden
+      >
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
+      <span>{{ 'APP.LOAD_FILE' | translate }}</span>
+    </label>
+
+    <!-- Кнопка воспроизведения/паузы -->
+    <button class="control-btn play-btn" (click)="playPause()" [title]="isPlaying ? ('PLAYER.STOP' | translate) : ('PLAYER.PLAY' | translate)">
+      <svg *ngIf="!isPlaying" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <polygon points="5 3 19 12 5 21 5 3"></polygon>
+      </svg>
+      <svg *ngIf="isPlaying" width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <rect x="6" y="4" width="4" height="16"></rect>
+        <rect x="14" y="4" width="4" height="16"></rect>
+      </svg>
+    </button>
+
+    <!-- Кнопка остановки -->
+    <button class="control-btn" (click)="stop()" [title]="'PLAYER.STOP' | translate">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+        <rect x="6" y="6" width="12" height="12"></rect>
+      </svg>
+    </button>
+  </div>
+
+  <!-- Кнопка настроек -->
+  <button class="settings-btn" (click)="openSettings()" [title]="'PLAYER.SETTINGS' | translate">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="3"></circle>
+      <path d="M12 1v6m0 6v6m5.66-13.66l-4.24 4.24m-2.83 2.83l-4.24 4.24m13.66 0l-4.24-4.24m-2.83-2.83L1.34 5.66"></path>
+    </svg>
+    <span>{{ 'PLAYER.SETTINGS' | translate }}</span>
+  </button>
+</div>
+
