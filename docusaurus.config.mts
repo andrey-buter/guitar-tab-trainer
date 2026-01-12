@@ -12,11 +12,42 @@ import * as fs from "fs";
 import { AlphaTabWebPackPlugin } from "@coderline/alphatab-webpack";
 import { RuleSetRule } from "webpack";
 
+// ============================================================================
+// НАСТРОЙКА ИСПОЛЬЗОВАНИЯ ИСХОДНОГО КОДА ALPHATAB
+// ============================================================================
+// Чтобы использовать исходный код alphaTab вместо npm пакета:
+// 1. Склонируйте репозиторий alphaTab:
+//    git clone https://github.com/CoderLine/alphaTab.git ../alphaTab
+//    или укажите путь через переменную окружения:
+//    ALPHATAB_SOURCE_PATH=../alphaTab npm start
+//
+// 2. Убедитесь, что в локальном репозитории выполнен npm install и npm run build
+//
+// 3. Включите использование локального репозитория:
+//    USE_LOCAL_ALPHATAB=true npm start
+// ============================================================================
+
+// Путь к локальному репозиторию alphaTab (можно задать через переменную окружения)
+const ALPHATAB_SOURCE_PATH = process.env.ALPHATAB_SOURCE_PATH || "../alphaTab/packages/alphatab/dist";
+const USE_LOCAL_ALPHATAB = process.env.USE_LOCAL_ALPHATAB === "true" || fs.existsSync(path.resolve(ALPHATAB_SOURCE_PATH));
+
+// Определяем путь к package.json alphaTab
+let alphaTabPackageJsonPath: string;
+if (USE_LOCAL_ALPHATAB) {
+  const localPath = path.resolve(ALPHATAB_SOURCE_PATH, "package.json");
+  if (fs.existsSync(localPath)) {
+    alphaTabPackageJsonPath = localPath;
+    console.log(`[alphaTab] Используется локальный репозиторий: ${ALPHATAB_SOURCE_PATH}`);
+  } else {
+    console.warn(`[alphaTab] Локальный репозиторий не найден по пути ${ALPHATAB_SOURCE_PATH}, используется npm пакет`);
+    alphaTabPackageJsonPath = path.join("node_modules", "@coderline", "alphatab", "package.json");
+  }
+} else {
+  alphaTabPackageJsonPath = path.join("node_modules", "@coderline", "alphatab", "package.json");
+}
+
 const alphaTabVersionFull = JSON.parse(
-  fs.readFileSync(
-    path.join("node_modules", "@coderline", "alphatab", "package.json"),
-    "utf8"
-  )
+  fs.readFileSync(alphaTabPackageJsonPath, "utf8")
 ).version;
 const isPreRelease = alphaTabVersionFull.indexOf("-") >= 0;
 let alphaTabVersion;
@@ -382,28 +413,57 @@ const config: Config = {
           loader: "resolve-url-loader",
         });
 
+        // Настройка webpack для использования локального alphaTab
+        const webpackResolve: any = {
+          fallback: {
+            fs: false,
+            buffer: false,
+            path: false,
+            os: false,
+            util: false,
+            assert: false,
+            stream: false,
+            crypto: false,
+            constants: false,
+            child_process: false,
+            module: false,
+          },
+        };
+
+        // Если используется локальный репозиторий, добавляем alias для перенаправления импортов
+        if (USE_LOCAL_ALPHATAB) {
+          const localAlphaTabPath = path.resolve(ALPHATAB_SOURCE_PATH);
+          const distPath = path.join(localAlphaTabPath, "dist");
+          
+          // Проверяем наличие собранных файлов
+          if (fs.existsSync(distPath)) {
+            webpackResolve.alias = {
+              "@coderline/alphatab": distPath,
+            };
+            console.log(`[alphaTab] Webpack alias настроен: @coderline/alphatab -> ${distPath}`);
+          } else {
+            console.warn(`[alphaTab] Папка dist не найдена в ${localAlphaTabPath}. Убедитесь, что выполнен npm run build в репозитории alphaTab`);
+          }
+        }
+
+        // Определяем путь к исходникам для AlphaTabWebPackPlugin
+        let alphaTabSourceDir: string | undefined;
+        if (USE_LOCAL_ALPHATAB) {
+          const localDistPath = path.resolve(ALPHATAB_SOURCE_PATH, "dist");
+          if (fs.existsSync(localDistPath)) {
+            alphaTabSourceDir = localDistPath;
+          }
+        }
+
         return {
           plugins: [
             // Copy the Font and SoundFont Files to the output
             new AlphaTabWebPackPlugin({
               assetOutputDir: config.output!.path,
+              ...(alphaTabSourceDir && { alphaTabSourceDir }),
             }),
           ],
-          resolve: {
-            fallback: {
-              fs: false,
-              buffer: false,
-              path: false,
-              os: false,
-              util: false,
-              assert: false,
-              stream: false,
-              crypto: false,
-              constants: false,
-              child_process: false,
-              module: false,
-            },
-          },
+          resolve: webpackResolve,
         };
       },
     }),
