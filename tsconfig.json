@@ -9,7 +9,10 @@
       "ES2022",
       "DOM",
       "ES2024.Promise"
-    ]
+    ],
+    "paths": {
+      "@coderline/alphatab": ["../alphaTab/packages/alphatab"]
+    }
   },
   "include": [
     "*.ts",

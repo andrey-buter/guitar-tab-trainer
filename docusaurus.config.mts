@@ -28,18 +28,26 @@ import { RuleSetRule } from "webpack";
 // ============================================================================
 
 // Путь к локальному репозиторию alphaTab (можно задать через переменную окружения)
-const ALPHATAB_SOURCE_PATH = process.env.ALPHATAB_SOURCE_PATH || "../alphaTab/packages/alphatab/dist";
-const USE_LOCAL_ALPHATAB = process.env.USE_LOCAL_ALPHATAB === "true" || fs.existsSync(path.resolve(ALPHATAB_SOURCE_PATH));
+const ALPHATAB_SOURCE_PATH = process.env.ALPHATAB_SOURCE_PATH || "../alphaTab/packages/alphatab";
+const ALPHATAB_SOURCE_PATH_RESOLVED = path.resolve(ALPHATAB_SOURCE_PATH);
+const USE_LOCAL_ALPHATAB = process.env.USE_LOCAL_ALPHATAB === "true" || fs.existsSync(ALPHATAB_SOURCE_PATH_RESOLVED);
+
+if (process.env.USE_LOCAL_ALPHATAB === "true") {
+  console.log(`[alphaTab] Принудительное использование локального репозитория: ${ALPHATAB_SOURCE_PATH_RESOLVED}`);
+  if (!fs.existsSync(ALPHATAB_SOURCE_PATH_RESOLVED)) {
+    console.warn(`[alphaTab] ВНИМАНИЕ: Путь не существует: ${ALPHATAB_SOURCE_PATH_RESOLVED}`);
+  }
+}
 
 // Определяем путь к package.json alphaTab
 let alphaTabPackageJsonPath: string;
 if (USE_LOCAL_ALPHATAB) {
-  const localPath = path.resolve(ALPHATAB_SOURCE_PATH, "package.json");
+  const localPath = path.join(ALPHATAB_SOURCE_PATH_RESOLVED, "package.json");
   if (fs.existsSync(localPath)) {
     alphaTabPackageJsonPath = localPath;
-    console.log(`[alphaTab] Используется локальный репозиторий: ${ALPHATAB_SOURCE_PATH}`);
+    console.log(`[alphaTab] Используется локальный репозиторий: ${ALPHATAB_SOURCE_PATH_RESOLVED}`);
   } else {
-    console.warn(`[alphaTab] Локальный репозиторий не найден по пути ${ALPHATAB_SOURCE_PATH}, используется npm пакет`);
+    console.warn(`[alphaTab] Локальный репозиторий не найден по пути ${ALPHATAB_SOURCE_PATH_RESOLVED}, используется npm пакет`);
     alphaTabPackageJsonPath = path.join("node_modules", "@coderline", "alphatab", "package.json");
   }
 } else {
@@ -431,31 +439,44 @@ const config: Config = {
         };
 
         // Если используется локальный репозиторий, добавляем alias для перенаправления импортов
-        if (USE_LOCAL_ALPHATAB) {
-          const localAlphaTabPath = path.resolve(ALPHATAB_SOURCE_PATH);
+        if (USE_LOCAL_ALPHATAB && fs.existsSync(ALPHATAB_SOURCE_PATH_RESOLVED)) {
+          const localAlphaTabPath = ALPHATAB_SOURCE_PATH_RESOLVED;
+          const packageJsonPath = path.join(localAlphaTabPath, "package.json");
           const distPath = path.join(localAlphaTabPath, "dist");
           
-          // Проверяем наличие собранных файлов
-          if (fs.existsSync(distPath)) {
+          // Проверяем наличие package.json и dist папки
+          if (fs.existsSync(packageJsonPath) && fs.existsSync(distPath)) {
+            // Указываем на корень пакета, чтобы webpack использовал main/module из package.json
             webpackResolve.alias = {
-              "@coderline/alphatab": distPath,
+              "@coderline/alphatab": localAlphaTabPath,
             };
-            console.log(`[alphaTab] Webpack alias настроен: @coderline/alphatab -> ${distPath}`);
+            console.log(`[alphaTab] Webpack alias настроен: @coderline/alphatab -> ${localAlphaTabPath}`);
           } else {
-            console.warn(`[alphaTab] Папка dist не найдена в ${localAlphaTabPath}. Убедитесь, что выполнен npm run build в репозитории alphaTab`);
+            console.error(`[alphaTab] ОШИБКА: Не найден package.json или папка dist в ${localAlphaTabPath}`);
+            if (!fs.existsSync(packageJsonPath)) {
+              console.error(`[alphaTab] package.json не найден по пути: ${packageJsonPath}`);
+            }
+            if (!fs.existsSync(distPath)) {
+              console.error(`[alphaTab] Папка dist не найдена по пути: ${distPath}`);
+              console.error(`[alphaTab] Убедитесь, что выполнен npm run build в репозитории alphaTab`);
+            }
+            console.error(`[alphaTab] Используется npm пакет как fallback`);
           }
+        } else if (USE_LOCAL_ALPHATAB) {
+          console.error(`[alphaTab] ОШИБКА: Путь к локальному репозиторию не существует: ${ALPHATAB_SOURCE_PATH_RESOLVED}`);
+          console.error(`[alphaTab] Используется npm пакет как fallback`);
         }
 
         // Определяем путь к исходникам для AlphaTabWebPackPlugin
         let alphaTabSourceDir: string | undefined;
         if (USE_LOCAL_ALPHATAB) {
-          const localDistPath = path.resolve(ALPHATAB_SOURCE_PATH, "dist");
+          const localDistPath = path.join(ALPHATAB_SOURCE_PATH_RESOLVED, "dist");
           if (fs.existsSync(localDistPath)) {
             alphaTabSourceDir = localDistPath;
           }
         }
 
-        return {
+        const result: any = {
           plugins: [
             // Copy the Font and SoundFont Files to the output
             new AlphaTabWebPackPlugin({
@@ -465,6 +486,15 @@ const config: Config = {
           ],
           resolve: webpackResolve,
         };
+
+        if (process.env.NO_MINIFY === "true") {
+          result.optimization = {
+            minimize: false,
+          };
+          result.devtool = "source-map";
+        }
+
+        return result;
       },
     }),
   ],
