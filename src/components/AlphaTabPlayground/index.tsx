@@ -33,25 +33,27 @@ export const AlphaTabPlayground: React.FC = () => {
         s.player.scrollOffsetY = -10;
         s.player.playerMode = alphaTab.PlayerMode.EnabledSynthesizer;
 
+        s.notation.tablatureFretFormatter = 'NoteName';
+
         // Настройка форматирования ладов табулатуры для отображения имени ноты с октавой
-        s.notation.tablatureFretFormatter = `(fret, note) => {
-            // Используем realValue (MIDI значение) из note для получения имени ноты
-            const midiValue = note.realValue;
+        // s.notation.tablatureFretFormatter = `(fret, note) => {
+        //     // Используем realValue (MIDI значение) из note для получения имени ноты
+        //     const midiValue = note.realValue;
 
-            // Массив названий нот
-            const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+        //     // Массив названий нот
+        //     const noteNames = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
 
-            // Получаем индекс ноты (0-11) из MIDI значения
-            const noteIndex = midiValue % 12;
-            const noteName = noteNames[noteIndex];
+        //     // Получаем индекс ноты (0-11) из MIDI значения
+        //     const noteIndex = midiValue % 12;
+        //     const noteName = noteNames[noteIndex];
 
-            // Вычисляем октаву: MIDI 60 = C4 (middle C)
-            // Формула: octave = Math.floor(midiValue / 12) - 1
-            const octave = Math.floor(midiValue / 12) - 1;
+        //     // Вычисляем октаву: MIDI 60 = C4 (middle C)
+        //     // Формула: octave = Math.floor(midiValue / 12) - 1
+        //     const octave = Math.floor(midiValue / 12) - 1;
 
-            // Возвращаем имя ноты с октавой (например, "C4", "G#3")
-            return \`\${noteName}\${octave}\`;
-        }`;
+        //     // Возвращаем имя ноты с октавой (например, "C4", "G#3")
+        //     return \`\${noteName}\${octave}\`;
+        // }`;
 
         s.notation.tablatureFretFormatterFn = (fret: number, note: alphaTab.model.Note) => {
             // Используем realValue (MIDI значение) из note для получения имени ноты
