@@ -244,6 +244,28 @@ export const AlphaTabPlayground: React.FC = () => {
         }
     }, [api, mediaType.type]);
 
+    useEffect(() => {
+        if (!api) {
+            return;
+        }
+
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.code === 'Space') {
+                const target = e.target as HTMLElement;
+                if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) {
+                    return;
+                }
+                e.preventDefault();
+                api.playPause();
+            }
+        };
+
+        window.addEventListener('keydown', onKeyDown);
+        return () => {
+            window.removeEventListener('keydown', onKeyDown);
+        };
+    }, [api]);
+
     return (
         <>
             <div className={styles['at-wrap']} onDragOver={onDragOver} onDrop={onDrop}>
