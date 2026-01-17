@@ -27,6 +27,46 @@ export enum BottomPanel {
     MediaSyncEditor = 1
 }
 
+export const QuickSettings: React.FC<{ api: alphaTab.AlphaTabApi }> = ({ api }) => {
+    const [fretFormatter, setFretFormatter] = useState<string>(
+        (api.settings.notation.tablatureFretFormatter as string) || ''
+    );
+
+    const onFretFormatterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = e.target.value;
+        setFretFormatter(newValue);
+        api.settings.notation.tablatureFretFormatter = newValue;
+        api.updateSettings();
+        api.render();
+    };
+
+    return (
+        <div className={styles['at-player-center']}>
+            <span style={{ fontSize: '0.8em', fontWeight: 'bold' }}>Fret:</span>
+            <label className={fretFormatter === '' ? styles.active : ''}>
+                <input
+                    type="radio"
+                    name="fretFormatter"
+                    value=""
+                    checked={fretFormatter === ''}
+                    onChange={onFretFormatterChange}
+                />
+                Default
+            </label>
+            <label className={fretFormatter === 'NoteName' ? styles.active : ''}>
+                <input
+                    type="radio"
+                    name="fretFormatter"
+                    value="NoteName"
+                    checked={fretFormatter === 'NoteName'}
+                    onChange={onFretFormatterChange}
+                />
+                NoteName
+            </label>
+        </div>
+    );
+};
+
 export const PlayerControlsGroup: React.FC<PlayerControlsGroupProps> = ({
     api,
     sidePanel,
@@ -118,6 +158,8 @@ export const PlayerControlsGroup: React.FC<PlayerControlsGroupProps> = ({
                         {formatDuration(currentTime)} / {formatDuration(endTime)}
                     </div>
                 </div>
+
+                <QuickSettings api={api} />
 
                 <div className={styles['at-player-right']}>
                     <button
