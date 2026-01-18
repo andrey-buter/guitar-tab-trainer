@@ -7,6 +7,7 @@ import * as solid from '@fortawesome/free-solid-svg-icons';
 import { useAlphaTabEvent } from '@site/src/hooks';
 import { openFile, openInputFile } from '@site/src/utils';
 import { PlayerProgressIndicator } from '../AlphaTabFull/player-progress-indicator';
+import { GoogleDrivePicker } from './google-drive-picker';
 
 export interface PlayerControlsGroupProps {
     sidePanel: SidePanel;
@@ -131,6 +132,45 @@ export const PlayerControlsGroup: React.FC<PlayerControlsGroupProps> = ({
                         data-tooltip-content="Open File">
                         <FontAwesomeIcon icon={solid.faFolderOpen} />
                     </button>
+
+                    <GoogleDrivePicker
+                        onFileSelect={async file => {
+                            try {
+                                console.log('Selected file from Google Drive:', file);
+                                
+                                // Get the access token from localStorage
+                                const accessToken = localStorage.getItem('google_drive_access_token');
+                                if (!accessToken) {
+                                    console.error('No access token available');
+                                    return;
+                                }
+
+                                // Download the file
+                                const response = await fetch(
+                                    `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`,
+                                    {
+                                        headers: {
+                                            Authorization: `Bearer ${accessToken}`
+                                        }
+                                    }
+                                );
+
+                                if (!response.ok) {
+                                    throw new Error('Failed to download file');
+                                }
+
+                                // Load the file into AlphaTab
+                                const arrayBuffer = await response.arrayBuffer();
+                                const uint8Array = new Uint8Array(arrayBuffer);
+                                api.load(uint8Array, [0]);
+                                
+                                console.log('File loaded successfully into AlphaTab');
+                            } catch (error) {
+                                console.error('Error loading file from Google Drive:', error);
+                                alert('Failed to load file from Google Drive. Please try again.');
+                            }
+                        }}
+                    />
 
                     <button
                         type="button"
