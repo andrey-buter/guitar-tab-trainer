@@ -8,7 +8,7 @@ export function openFile(api: alphaTab.AlphaTabApi, file: Blob) {
   reader.readAsArrayBuffer(file);
 }
 
-export function openInputFile(api: alphaTab.AlphaTabApi) {
+export function openInputFile(api: alphaTab.AlphaTabApi, onFileName?: (name: string) => void) {
   const input = document.createElement('input');
   input.type = 'file';
   if (!isIOS()) {
@@ -16,6 +16,9 @@ export function openInputFile(api: alphaTab.AlphaTabApi) {
   }
   input.onchange = () => {
     if (input.files?.length === 1) {
+      if (onFileName) {
+        onFileName(input.files[0].name);
+      }
       openFile(api, input.files[0]);
     }
   };
@@ -31,7 +34,7 @@ export function downloadFile(api: alphaTab.AlphaTabApi) {
   const data = exporter.export(score, api.settings);
   const a = document.createElement('a');
   a.download = score.title.length > 0 ? `${score.title.trim()}.gp` : 'Untitled.gp';
-  a.href = URL.createObjectURL(new Blob([data], { type: 'application/gp' }));
+  a.href = URL.createObjectURL(new Blob([data.buffer as ArrayBuffer], { type: 'application/gp' }));
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);

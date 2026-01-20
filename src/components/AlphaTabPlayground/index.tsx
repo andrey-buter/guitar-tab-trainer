@@ -12,8 +12,11 @@ import { PlaygroundSettings } from './playground-settings';
 import { Tooltip } from 'react-tooltip';
 import { PlaygroundTrackSelector } from './track-selector';
 import { MediaSyncEditor } from './media-sync-editor';
-import { type HTMLMediaElementLike, MediaType, type MediaTypeState } from './helpers';
+import { DefaultScreenMode, type HTMLMediaElementLike, MediaType, type MediaTypeState } from './helpers';
 import { YouTubePlayer } from './youtube-player';
+import { openInputFile } from '@site/src/utils';
+import { GoogleDrivePicker } from './google-drive-picker';
+
 
 export const AlphaTabPlayground: React.FC = () => {
     const viewPortRef = React.createRef<HTMLDivElement>();
@@ -23,22 +26,65 @@ export const AlphaTabPlayground: React.FC = () => {
     const [mediaType, setMediaType] = useState<MediaTypeState>({
         type: MediaType.Synth
     });
+    const [currentFileName, setCurrentFileName] = useState<string | null>(null);
+    const [isDownloading, setIsDownloading] = useState(false);
+    const hasAttemptedStartupLoad = useRef(false);
+    
     const youtubePlayer = useRef<HTMLMediaElementLike | null>(null);
+
 
     const [api, element] = useAlphaTab(s => {
         s.core.engine = 'svg';
-        s.core.file = '/files/canon-full.gp';
-        s.core.tracks = [0, 1];
+        
+        const hasSavedFile = typeof window !== 'undefined' && 
+                             localStorage.getItem('google_drive_last_file') && 
+                             localStorage.getItem('google_drive_save_selection') === 'true' &&
+                             localStorage.getItem('google_drive_access_token');
+
+        if (!hasSavedFile) {
+
+            const defaultScreen = typeof window !== 'undefined' ? localStorage.getItem('alphaTab_defaultScreen') : null;
+            const defaultScreenMode = defaultScreen !== null ? JSON.parse(defaultScreen) : DefaultScreenMode.DefaultTab;
+            
+            if (defaultScreenMode === DefaultScreenMode.DefaultTab) {
+                s.core.file = '/files/canon-full.gp';
+                s.core.tracks = [0, 1];
+            }
+        }
+
         s.player.scrollElement = viewPortRef.current!;
         s.player.scrollOffsetY = -10;
         s.player.playerMode = alphaTab.PlayerMode.EnabledSynthesizer;
+        s.player.scrollMode = alphaTab.ScrollMode.Continuous;
 
         s.notation.tablatureFretFormatter = 'NoteName';
     });
 
+
     useAlphaTabEvent(api, 'renderFinished', () => {
         setLoading(false);
     });
+
+    useEffect(() => {
+        if (!api) {
+            return;
+        }
+
+        const hasSavedFile = typeof window !== 'undefined' && 
+                             localStorage.getItem('google_drive_last_file') && 
+                             localStorage.getItem('google_drive_save_selection') === 'true' &&
+                             localStorage.getItem('google_drive_access_token');
+
+        if (!hasSavedFile) {
+            const defaultScreen = typeof window !== 'undefined' ? localStorage.getItem('alphaTab_defaultScreen') : null;
+            const defaultScreenMode = defaultScreen !== null ? JSON.parse(defaultScreen) : DefaultScreenMode.DefaultTab;
+            
+            if (defaultScreenMode === DefaultScreenMode.EmptyView) {
+                setLoading(false);
+            }
+        }
+    }, [api]);
+
 
     useAlphaTabEvent(api, 'scoreLoaded', score => {
         if (score.backingTrack?.rawAudioFile) {
@@ -50,6 +96,12 @@ export const AlphaTabPlayground: React.FC = () => {
             setMediaType({
                 type: MediaType.Synth
             });
+        }
+    });
+
+    useAlphaTabEvent(api, 'playerPositionChanged', () => {
+        if (api?.settings.player.scrollMode !== alphaTab.ScrollMode.Off) {
+            api?.scrollToCursor();
         }
     });
 
@@ -227,6 +279,113 @@ export const AlphaTabPlayground: React.FC = () => {
         };
     }, [api]);
 
+    // Handle startup load from Google Drive if saved
+    useEffect(() => {
+        if (!api || hasAttemptedStartupLoad.current) return;
+        
+        const savedFileStr = localStorage.getItem('google_drive_last_file');
+        const saveSelection = localStorage.getItem('google_drive_save_selection') === 'true';
+        const accessToken = localStorage.getItem('google_drive_access_token');
+        
+        if (savedFileStr && saveSelection && accessToken) {
+            hasAttemptedStartupLoad.current = true;
+            try {
+                const file = JSON.parse(savedFileStr);
+                setIsDownloading(true);
+                
+                // Give AlphaTab a moment to initialize before overriding the default load
+                setTimeout(() => {
+                    setCurrentFileName(file.name);
+                    fetch(`https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`, {
+                        headers: { Authorization: `Bearer ${accessToken}` }
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            if (response.status === 401) {
+                                localStorage.removeItem('google_drive_access_token');
+                                throw new Error('Unauthorized');
+                            }
+                            throw new Error('Failed to download');
+                        }
+                        return response.arrayBuffer();
+                    })
+                    .then(arrayBuffer => {
+                        api.load(new Uint8Array(arrayBuffer)); 
+                        console.log('Last Google Drive file loaded on startup:', file.name);
+                    })
+                    .catch(err => {
+                        console.error('Error loading last file on startup:', err);
+                        // Fallback to default file if startup load fails
+                        const defaultScreen = localStorage.getItem('alphaTab_defaultScreen');
+                        const defaultScreenMode = defaultScreen !== null ? JSON.parse(defaultScreen) : DefaultScreenMode.DefaultTab;
+                        if (defaultScreenMode === DefaultScreenMode.DefaultTab) {
+                            api.load('/files/canon-full.gp', [0, 1]);
+                        } else {
+                            setLoading(false);
+                        }
+                        setIsDownloading(false);
+                    })
+
+                    .finally(() => {
+                        setTimeout(() => setIsDownloading(false), 500);
+                    });
+                }, 100);
+            } catch (e) {
+                console.error('Failed to parse last saved file', e);
+                setIsDownloading(false);
+            }
+        }
+    }, [api]);
+
+    const onGoogleDriveFileSelect = async (file: { id: string, name: string }) => {
+        try {
+            setIsDownloading(true);
+            setCurrentFileName(file.name);
+            console.log('Selected file from Google Drive:', file);
+            
+            const accessToken = localStorage.getItem('google_drive_access_token');
+            if (!accessToken) {
+                setIsDownloading(false);
+                console.error('No access token available');
+                alert('Please sign in to Google Drive first');
+                return;
+            }
+
+            const response = await fetch(
+                `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error('Failed to download file');
+            }
+
+            const arrayBuffer = await response.arrayBuffer();
+            const uint8Array = new Uint8Array(arrayBuffer);
+            api!.load(uint8Array, [0]);
+            
+            const saveSelection = localStorage.getItem('google_drive_save_selection') === 'true';
+            if (saveSelection) {
+                localStorage.setItem('google_drive_last_file', JSON.stringify({
+                    id: file.id,
+                    name: file.name
+                }));
+            }
+            
+            console.log('File loaded successfully into AlphaTab');
+        } catch (error) {
+            console.error('Error loading file from Google Drive:', error);
+            alert('Failed to load file from Google Drive. Please try again.');
+        } finally {
+            setIsDownloading(false);
+        }
+    };
+
+
     return (
         <>
             <div className={styles['at-wrap']} onDragOver={onDragOver} onDrop={onDrop}>
@@ -257,7 +416,28 @@ export const AlphaTabPlayground: React.FC = () => {
                 <div className={styles['at-content']}>
                     <div className={styles['at-viewport']} ref={viewPortRef}>
                         <div ref={element} />
+                        {api && !api.score && !isLoading && (
+                            <div className={styles['at-empty-view']}>
+                                <div className={styles['at-empty-view-content']}>
+                                    <button
+                                        type="button"
+                                        className="button button--primary button--lg"
+                                        onClick={e => {
+                                            e.preventDefault();
+                                            openInputFile(api, name => setCurrentFileName(name));
+                                        }}>
+                                        <FontAwesomeIcon icon={solid.faFolderOpen} /> Open File
+                                    </button>
+                                    <div className={styles['at-empty-view-divider']}>or</div>
+                                    <GoogleDrivePicker
+                                        className="button button--secondary button--lg"
+                                        onFileSelect={onGoogleDriveFileSelect}
+                                    />
+                                </div>
+                            </div>
+                        )}
                     </div>
+
 
                     {mediaType.type === MediaType.YouTube && (
                         <div className={styles.video}>
@@ -283,8 +463,14 @@ export const AlphaTabPlayground: React.FC = () => {
                             onSidePanelChange={setSidePanel}
                             bottomPanel={bottomPanel}
                             onBottomPanelChange={setBottomPanel}
+                            currentFileName={currentFileName}
+                            setCurrentFileName={setCurrentFileName}
+                            isDownloading={isDownloading}
+                            setIsDownloading={setIsDownloading}
+                            onGoogleDriveFileSelect={onGoogleDriveFileSelect}
                         />
                     )}
+
                 </div>
             </div>
             <Tooltip anchorSelect="[data-tooltip-content]" id="tooltip-playground" style={{ zIndex: 1200 }} />

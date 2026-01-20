@@ -1,6 +1,6 @@
 import * as alphaTab from '@coderline/alphatab';
 import type React from 'react';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import styles from './styles.module.scss';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as solid from '@fortawesome/free-solid-svg-icons';
@@ -13,9 +13,16 @@ export interface PlayerControlsGroupProps {
     sidePanel: SidePanel;
     onSidePanelChange: (sidePanel: SidePanel) => void;
     bottomPanel: BottomPanel;
-    onBottomPanelChange: (sidePanel: BottomPanel) => void;
+    onBottomPanelChange: (bottomPanel: BottomPanel) => void;
     api: alphaTab.AlphaTabApi;
+    currentFileName: string | null;
+    setCurrentFileName: (name: string | null) => void;
+    isDownloading: boolean;
+    setIsDownloading: (isDownloading: boolean) => void;
+    onGoogleDriveFileSelect: (file: { id: string, name: string }) => Promise<void>;
 }
+
+
 
 export enum SidePanel {
     None = 0,
@@ -32,6 +39,12 @@ export const QuickSettings: React.FC<{ api: alphaTab.AlphaTabApi }> = ({ api }) 
     const [fretFormatter, setFretFormatter] = useState<string>(
         (api.settings.notation.tablatureFretFormatter as string) || ''
     );
+    const [scrollMode, setScrollMode] = useState<alphaTab.ScrollMode>(api.settings.player.scrollMode);
+
+    useAlphaTabEvent(api, 'settingsUpdated', () => {
+        setScrollMode(api.settings.player.scrollMode);
+        setFretFormatter((api.settings.notation.tablatureFretFormatter as string) || '');
+    });
 
     const onFretFormatterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const newValue = e.target.value;
@@ -39,6 +52,13 @@ export const QuickSettings: React.FC<{ api: alphaTab.AlphaTabApi }> = ({ api }) 
         api.settings.notation.tablatureFretFormatter = newValue;
         api.updateSettings();
         api.render();
+    };
+
+    const onScrollModeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newValue = e.target.checked ? alphaTab.ScrollMode.Continuous : alphaTab.ScrollMode.Off;
+        api.settings.player.scrollMode = newValue;
+        api.updateSettings();
+        setScrollMode(newValue);
     };
 
     return (
@@ -64,6 +84,16 @@ export const QuickSettings: React.FC<{ api: alphaTab.AlphaTabApi }> = ({ api }) 
                 />
                 NoteName
             </label>
+
+            <span style={{ fontSize: '0.8em', fontWeight: 'bold', marginLeft: '10px' }}>Follow:</span>
+            <label className={scrollMode !== alphaTab.ScrollMode.Off ? styles.active : ''}>
+                <input
+                    type="checkbox"
+                    checked={scrollMode !== alphaTab.ScrollMode.Off}
+                    onChange={onScrollModeChange}
+                />
+                <FontAwesomeIcon icon={scrollMode !== alphaTab.ScrollMode.Off ? solid.faEye : solid.faEyeSlash} />
+            </label>
         </div>
     );
 };
@@ -73,42 +103,24 @@ export const PlayerControlsGroup: React.FC<PlayerControlsGroupProps> = ({
     sidePanel,
     onSidePanelChange,
     bottomPanel,
-    onBottomPanelChange
+    onBottomPanelChange,
+    currentFileName,
+    setCurrentFileName,
+    isDownloading,
+    onGoogleDriveFileSelect
 }) => {
+
     const [soundFontLoadPercentage, setSoundFontLoadPercentage] = useState(0);
     const [isPlaying, setPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [endTime, setEndTime] = useState(1);
-
-    useAlphaTabEvent(api, 'soundFontLoad', e => {
-        setSoundFontLoadPercentage(e.loaded / e.total);
-    });
-
-    useAlphaTabEvent(api, 'soundFontLoaded', () => {
-        setSoundFontLoadPercentage(1);
-    });
-    useAlphaTabEvent(api, 'playerStateChanged', e => {
-        setPlaying(e.state === alphaTab.synth.PlayerState.Playing);
-    });
-    useAlphaTabEvent(api, 'playerPositionChanged', e => {
-        // reduce number of UI updates to second changes.
-        const previousCurrentSeconds = (currentTime / 1000) | 0;
-        const newCurrentSeconds = (e.currentTime / 1000) | 0;
-
-        if (e.endTime === endTime && (previousCurrentSeconds === newCurrentSeconds || newCurrentSeconds === 0)) {
-            return;
-        }
-
-        setEndTime(e.endTime);
-        setCurrentTime(e.currentTime);
-    });
-
     const formatDuration = (milliseconds: number) => {
         let seconds = milliseconds / 1000;
         const minutes = (seconds / 60) | 0;
         seconds = (seconds - minutes * 60) | 0;
         return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     };
+
 
     return (
         <>
@@ -126,7 +138,7 @@ export const PlayerControlsGroup: React.FC<PlayerControlsGroupProps> = ({
                         type="button"
                         onClick={e => {
                             e.preventDefault();
-                            openInputFile(api);
+                            openInputFile(api, (name) => setCurrentFileName(name));
                         }}
                         data-tooltip-id="tooltip-playground"
                         data-tooltip-content="Open File">
@@ -134,43 +146,9 @@ export const PlayerControlsGroup: React.FC<PlayerControlsGroupProps> = ({
                     </button>
 
                     <GoogleDrivePicker
-                        onFileSelect={async file => {
-                            try {
-                                console.log('Selected file from Google Drive:', file);
-                                
-                                // Get the access token from localStorage
-                                const accessToken = localStorage.getItem('google_drive_access_token');
-                                if (!accessToken) {
-                                    console.error('No access token available');
-                                    return;
-                                }
-
-                                // Download the file
-                                const response = await fetch(
-                                    `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media`,
-                                    {
-                                        headers: {
-                                            Authorization: `Bearer ${accessToken}`
-                                        }
-                                    }
-                                );
-
-                                if (!response.ok) {
-                                    throw new Error('Failed to download file');
-                                }
-
-                                // Load the file into AlphaTab
-                                const arrayBuffer = await response.arrayBuffer();
-                                const uint8Array = new Uint8Array(arrayBuffer);
-                                api.load(uint8Array, [0]);
-                                
-                                console.log('File loaded successfully into AlphaTab');
-                            } catch (error) {
-                                console.error('Error loading file from Google Drive:', error);
-                                alert('Failed to load file from Google Drive. Please try again.');
-                            }
-                        }}
+                        onFileSelect={onGoogleDriveFileSelect}
                     />
+
 
                     <button
                         type="button"
@@ -186,11 +164,17 @@ export const PlayerControlsGroup: React.FC<PlayerControlsGroupProps> = ({
 
                     <PlayerProgressIndicator percentage={soundFontLoadPercentage} />
 
-                    {api.score && (
+                    {(api.score || currentFileName) && (
                         <div className={styles['at-song-details']}>
-                            <span className={styles['at-song-title']}>{api.score.title}</span>
-                            <span> - </span>
-                            <span className={styles['at-song-artist']}>{api.score.artist}</span>
+                            <span className={styles['at-song-title']}>
+                                {api.score ? (api.score.title || currentFileName || 'Untitled') : currentFileName}
+                            </span>
+                            {api.score && (
+                                <>
+                                    <span> - </span>
+                                    <span className={styles['at-song-artist']}>{api.score.artist}</span>
+                                </>
+                            )}
                         </div>
                     )}
 
@@ -243,6 +227,15 @@ export const PlayerControlsGroup: React.FC<PlayerControlsGroupProps> = ({
                     </button>
                 </div>
             </div>
+
+            {isDownloading && (
+                <div className={styles['drive-download-overlay']}>
+                    <div className={styles['drive-download-content']}>
+                        <FontAwesomeIcon icon={solid.faSpinner} spin />
+                        <span>Opening from Google Drive...</span>
+                    </div>
+                </div>
+            )}
         </>
     );
 };

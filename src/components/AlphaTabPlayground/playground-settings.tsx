@@ -11,7 +11,10 @@ import { useDebounce } from '@uidotdev/usehooks';
 import { rgbaToHexa } from '@uiw/react-color';
 import { downloadFile } from '@site/src/utils';
 
+import { DefaultScreenMode } from './helpers';
+
 type SettingsContextProps = {
+
     api: alphaTab.AlphaTabApi;
     onSettingsUpdated(): void;
 };
@@ -228,8 +231,22 @@ const factory = {
             ...factory.settingAccessors(setting, updateOptions),
             control: { type: 'button-group', buttons: buttons.map(b => ({ label: b[0], value: b[1] })) }
         };
+    },
+
+    localStorageAccessors(key: string, defaultValue: any) {
+        return {
+            getValue(context: SettingsContextProps) {
+                const value = localStorage.getItem(key);
+                return value !== null ? JSON.parse(value) : defaultValue;
+            },
+            setValue(context: SettingsContextProps, value: any) {
+                localStorage.setItem(key, JSON.stringify(value));
+                context.onSettingsUpdated();
+            }
+        };
     }
 };
+
 
 // maybe we can auto-generate this for all settings?
 function buildSettingsGroups(): SettingsGroupSchema[] {
@@ -259,9 +276,18 @@ function buildSettingsGroups(): SettingsGroupSchema[] {
                 factory.numberInput('Start Bar', 'display.startBar', 1, undefined, 1),
                 factory.numberInput('Bar Count', 'display.barCount', -1, undefined, 1),
                 factory.toggle('Justify Last System', 'display.justifyLastSystem'),
-                factory.enumDropDown('Systems Layout Mode', 'display.systemsLayoutMode', alphaTab.SystemsLayoutMode)
+                factory.enumDropDown('Systems Layout Mode', 'display.systemsLayoutMode', alphaTab.SystemsLayoutMode),
+                {
+                    label: 'Default Screen',
+                    ...factory.localStorageAccessors('alphaTab_defaultScreen', DefaultScreenMode.DefaultTab),
+                    control: {
+                        type: 'enum-dropdown',
+                        enumType: DefaultScreenMode
+                    }
+                }
             ]
         },
+
         {
             title: 'Display ▸ Colors',
             settings: [

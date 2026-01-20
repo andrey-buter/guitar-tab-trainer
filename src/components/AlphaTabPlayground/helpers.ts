@@ -117,3 +117,8 @@ export interface MediaTypeState {
     youtubeUrl?: string;
     youtubeVideoDuration?: number;
 }
+
+export enum DefaultScreenMode {
+    DefaultTab = 0,
+    EmptyView = 1
+}

@@ -1,5 +1,5 @@
 import type React from 'react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as solid from '@fortawesome/free-solid-svg-icons';
 import * as brands from '@fortawesome/free-brands-svg-icons';
@@ -79,10 +79,16 @@ export const GoogleDrivePicker: React.FC<GoogleDrivePickerProps> = ({ onFileSele
     const [accessToken, setAccessToken] = useState<string | null>(null);
     const [isScriptsLoaded, setIsScriptsLoaded] = useState(false);
     const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+    const [selectedFolderName, setSelectedFolderName] = useState<string | null>(null);
     const [files, setFiles] = useState<GoogleDriveFile[]>([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isLoadingFiles, setIsLoadingFiles] = useState(false);
     const [isPickerOpen, setIsPickerOpen] = useState(false);
+    const [saveSelection, setSaveSelection] = useState(false);
+    
+    // Sort state
+    const [sortField, setSortField] = useState<'name' | 'modifiedTime'>('name');
+    const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
     // Load Google API scripts
     useEffect(() => {
@@ -117,9 +123,22 @@ export const GoogleDrivePicker: React.FC<GoogleDrivePickerProps> = ({ onFileSele
     // Check for existing token in localStorage
     useEffect(() => {
         const savedToken = localStorage.getItem('google_drive_access_token');
+        const savedFolderId = localStorage.getItem('google_drive_folder_id');
+        const savedFolderName = localStorage.getItem('google_drive_folder_name');
+        
         if (savedToken) {
             setAccessToken(savedToken);
             setIsAuthenticated(true);
+        }
+        
+        if (savedFolderId && savedFolderName) {
+            setSelectedFolder(savedFolderId);
+            setSelectedFolderName(savedFolderName);
+        }
+
+        const savedSaveSelection = localStorage.getItem('google_drive_save_selection');
+        if (savedSaveSelection === 'true') {
+            setSaveSelection(true);
         }
     }, []);
 
@@ -150,8 +169,12 @@ export const GoogleDrivePicker: React.FC<GoogleDrivePickerProps> = ({ onFileSele
         setAccessToken(null);
         setIsAuthenticated(false);
         setSelectedFolder(null);
+        setSelectedFolderName(null);
         setFiles([]);
         localStorage.removeItem('google_drive_access_token');
+        localStorage.removeItem('google_drive_folder_id');
+        localStorage.removeItem('google_drive_folder_name');
+        localStorage.removeItem('google_drive_last_file');
         setIsModalOpen(false);
     };
 
@@ -195,7 +218,15 @@ export const GoogleDrivePicker: React.FC<GoogleDrivePickerProps> = ({ onFileSele
 
         if (data.action === window.google?.picker.Action.PICKED) {
             const folderId = data.docs[0].id;
+            const folderName = data.docs[0].name;
+            
             setSelectedFolder(folderId);
+            setSelectedFolderName(folderName);
+            
+            // Save to localStorage
+            localStorage.setItem('google_drive_folder_id', folderId);
+            localStorage.setItem('google_drive_folder_name', folderName);
+            
             loadFilesFromFolder(folderId);
             // Show our modal again after selection
             setIsPickerOpen(false);
@@ -248,7 +279,7 @@ export const GoogleDrivePicker: React.FC<GoogleDrivePickerProps> = ({ onFileSele
             // Filter only supported files
             const allFiles = data.files || [];
             const supportedFiles = allFiles.filter((file: GoogleDriveFile) => 
-                file.mimeType.includes('folder') || isSupportedFile(file.name)
+                !file.mimeType.includes('folder') && isSupportedFile(file.name)
             );
             setFiles(supportedFiles);
         } catch (error) {
@@ -275,6 +306,34 @@ export const GoogleDrivePicker: React.FC<GoogleDrivePickerProps> = ({ onFileSele
             setIsModalOpen(false);
         }
         console.log('Selected file:', file);
+    };
+
+    useEffect(() => {
+        if (isModalOpen && selectedFolder && accessToken && !isPickerOpen) {
+            loadFilesFromFolder(selectedFolder);
+        }
+    }, [isModalOpen]);
+
+    // Derived sorted files
+    const sortedFiles = useMemo(() => {
+        return [...files].sort((a, b) => {
+            let comparison = 0;
+            if (sortField === 'name') {
+                comparison = a.name.localeCompare(b.name);
+            } else if (sortField === 'modifiedTime') {
+                comparison = new Date(a.modifiedTime).getTime() - new Date(b.modifiedTime).getTime();
+            }
+            return sortOrder === 'asc' ? comparison : -comparison;
+        });
+    }, [files, sortField, sortOrder]);
+
+    const toggleSort = (field: 'name' | 'modifiedTime') => {
+        if (sortField === field) {
+            setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortField(field);
+            setSortOrder('asc');
+        }
     };
 
 
@@ -321,13 +380,53 @@ export const GoogleDrivePicker: React.FC<GoogleDrivePickerProps> = ({ onFileSele
                 <div className={styles['modal-overlay']} onClick={() => setIsModalOpen(false)}>
                     <div className={styles['modal-content']} onClick={e => e.stopPropagation()}>
                         <div className={styles['modal-header']}>
-                            <h2>Google Drive Files</h2>
-                            <button
-                                type="button"
-                                className={styles['modal-close']}
-                                onClick={() => setIsModalOpen(false)}>
-                                <FontAwesomeIcon icon={solid.faTimes} />
-                            </button>
+                            <div className={styles['modal-header-left']}>
+                                <h2>Google Drive</h2>
+                                {selectedFolder && selectedFolderName && (
+                                    <div className={styles['modal-folder-info']}>
+                                        <FontAwesomeIcon icon={solid.faFolder} />
+                                        <span>{selectedFolderName}</span>
+                                    </div>
+                                )}
+                                <label className={styles['save-selection-checkbox']}>
+                                    <input 
+                                        type="checkbox" 
+                                        checked={saveSelection} 
+                                        onChange={(e) => {
+                                            setSaveSelection(e.target.checked);
+                                            localStorage.setItem('google_drive_save_selection', e.target.checked.toString());
+                                            if (!e.target.checked) {
+                                                localStorage.removeItem('google_drive_last_file');
+                                            }
+                                        }} 
+                                    />
+                                    <span>Save Selection</span>
+                                </label>
+                            </div>
+                            <div className={styles['modal-header-right']}>
+                                {selectedFolder && (
+                                    <button
+                                        type="button"
+                                        onClick={openFolderPicker}
+                                        className={styles['modal-change-folder-btn']}
+                                        title="Change Folder">
+                                        <FontAwesomeIcon icon={solid.faFolderOpen} />
+                                    </button>
+                                )}
+                                <button 
+                                    type="button" 
+                                    onClick={handleSignOut} 
+                                    className={styles['modal-sign-out-btn']}
+                                    title="Sign Out">
+                                    <FontAwesomeIcon icon={solid.faSignOutAlt} />
+                                </button>
+                                <button
+                                    type="button"
+                                    className={styles['modal-close']}
+                                    onClick={() => setIsModalOpen(false)}>
+                                    <FontAwesomeIcon icon={solid.faTimes} />
+                                </button>
+                            </div>
                         </div>
 
                         <div className={styles['modal-body']}>
@@ -343,24 +442,6 @@ export const GoogleDrivePicker: React.FC<GoogleDrivePickerProps> = ({ onFileSele
                                 </div>
                             ) : (
                                 <div className={styles['files-container']}>
-                                    <div className={styles['files-header']}>
-                                        <button
-                                            type="button"
-                                            onClick={() => {
-                                                setSelectedFolder(null);
-                                                setFiles([]);
-                                            }}
-                                            className={styles['back-btn']}>
-                                            <FontAwesomeIcon icon={solid.faArrowLeft} /> Back
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={openFolderPicker}
-                                            className={styles['change-folder-btn']}>
-                                            <FontAwesomeIcon icon={solid.faFolderOpen} /> Change Folder
-                                        </button>
-                                    </div>
-
                                     {isLoadingFiles ? (
                                         <div className={styles['loading']}>
                                             <FontAwesomeIcon icon={solid.faSpinner} spin /> Loading files...
@@ -373,36 +454,53 @@ export const GoogleDrivePicker: React.FC<GoogleDrivePickerProps> = ({ onFileSele
                                             </p>
                                         </div>
                                     ) : (
-                                        <div className={styles['files-list']}>
-                                            {files.map(file => (
-                                                <div
-                                                    key={file.id}
-                                                    className={styles['file-item']}
-                                                    onClick={() => handleFileClick(file)}>
-                                                    <div className={styles['file-icon']}>
-                                                        <FontAwesomeIcon
-                                                            icon={getFileIcon(file.name, file.mimeType)}
-                                                        />
-                                                    </div>
-                                                    <div className={styles['file-info']}>
-                                                        <div className={styles['file-name']}>{file.name}</div>
-                                                        <div className={styles['file-meta']}>
-                                                            {formatFileSize(file.size)} • {formatDate(file.modifiedTime)}
+                                        <>
+                                            <div className={styles['sort-bar']}>
+                                                <button 
+                                                    className={`${styles['sort-btn']} ${sortField === 'name' ? styles['active'] : ''}`}
+                                                    onClick={() => toggleSort('name')}>
+                                                    Name {sortField === 'name' && (
+                                                        <FontAwesomeIcon icon={sortOrder === 'asc' ? solid.faSortUp : solid.faSortDown} />
+                                                    )}
+                                                </button>
+                                                <button 
+                                                    className={`${styles['sort-btn']} ${sortField === 'modifiedTime' ? styles['active'] : ''}`}
+                                                    onClick={() => toggleSort('modifiedTime')}>
+                                                    Date {sortField === 'modifiedTime' && (
+                                                        <FontAwesomeIcon icon={sortOrder === 'asc' ? solid.faSortUp : solid.faSortDown} />
+                                                    )}
+                                                </button>
+                                            </div>
+                                            <div className={styles['files-list']}>
+                                                {sortedFiles.map(file => (
+                                                    <div
+                                                        key={file.id}
+                                                        className={styles['file-item']}
+                                                        onClick={() => handleFileClick(file)}>
+                                                        <div className={styles['file-icon']}>
+                                                            <FontAwesomeIcon
+                                                                icon={getFileIcon(file.name, file.mimeType)}
+                                                            />
+                                                        </div>
+                                                        <div className={styles['file-main-info']}>
+                                                            <div className={styles['file-name']}>{file.name}</div>
+                                                            <div className={styles['file-size']}>
+                                                                {formatFileSize(file.size)}
+                                                            </div>
+                                                        </div>
+                                                        <div className={styles['file-date']}>
+                                                            {formatDate(file.modifiedTime)}
                                                         </div>
                                                     </div>
-                                                </div>
-                                            ))}
-                                        </div>
+                                                ))}
+                                            </div>
+                                        </>
                                     )}
                                 </div>
                             )}
                         </div>
 
-                        <div className={styles['modal-footer']}>
-                            <button type="button" onClick={handleSignOut} className={styles['sign-out-btn']}>
-                                <FontAwesomeIcon icon={solid.faSignOutAlt} /> Sign Out
-                            </button>
-                        </div>
+                        {/* Modal Footer removed as Sign Out is now in Header */}
                     </div>
                 </div>
             )}
