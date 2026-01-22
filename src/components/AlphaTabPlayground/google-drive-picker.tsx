@@ -63,9 +63,11 @@ interface GoogleDriveFile {
 
 interface GoogleDrivePickerProps {
     onFileSelect?: (file: GoogleDriveFile) => void;
+    className?: string;
+    children?: React.ReactNode;
 }
 
-export const GoogleDrivePicker: React.FC<GoogleDrivePickerProps> = ({ onFileSelect }) => {
+export const GoogleDrivePicker: React.FC<GoogleDrivePickerProps> = ({ onFileSelect, className, children }) => {
     // Configuration - Замените эти значения на ваши реальные CLIENT_ID и API_KEY
     // Получите их из Google Cloud Console: https://console.cloud.google.com/apis/credentials
     const CLIENT_ID = '187570117608-0e63ipk7cnfpu2fk6sfn05o1k1j808ft.apps.googleusercontent.com';
@@ -362,8 +364,9 @@ export const GoogleDrivePicker: React.FC<GoogleDrivePickerProps> = ({ onFileSele
                     disabled={!isScriptsLoaded}
                     data-tooltip-id="tooltip-playground"
                     data-tooltip-content="Sign in with Google Drive"
-                    className={styles['google-drive-button']}>
+                    className={className || styles['google-drive-button']}>
                     <FontAwesomeIcon icon={brands.faGoogleDrive} />
+                    {children}
                 </button>
             ) : (
                 <button
@@ -371,8 +374,9 @@ export const GoogleDrivePicker: React.FC<GoogleDrivePickerProps> = ({ onFileSele
                     onClick={() => setIsModalOpen(true)}
                     data-tooltip-id="tooltip-playground"
                     data-tooltip-content="Open Google Drive"
-                    className={styles['google-drive-button']}>
+                    className={className || styles['google-drive-button']}>
                     <FontAwesomeIcon icon={brands.faGoogleDrive} style={{ color: '#4285f4' }} />
+                    {children}
                 </button>
             )}
 

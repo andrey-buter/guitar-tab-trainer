@@ -78,13 +78,105 @@
   justify-content: space-between;
   background: #436d9d;
   color: #fff;
+  transition: all 0.3s ease;
+  position: relative;
 }
 
-.at-player > div {
+.at-player-left {
+  flex: 1;
   display: flex;
-  justify-content: flex-start;
-  align-content: center;
+  flex-direction: column;
+}
+
+.mobile-main-controls {
+  display: flex;
   align-items: center;
+  flex: 1;
+  width: 100%;
+}
+
+.mobile-extra-controls {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease;
+  background: rgba(0, 0, 0, 0.1);
+  width: 100%;
+
+  .at-player-left-group,
+  .at-player-center,
+  .at-player-right {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 0 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+.mobile-open .mobile-extra-controls {
+  max-height: 70vh;
+  overflow-y: auto;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.mobile-toggler {
+  display: none;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 992px) {
+  .mobile-toggler {
+    display: flex;
+    align-items: center;
+  }
+
+  .at-player-center {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    padding: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .button-text {
+    display: inline;
+    margin-left: 0.25rem;
+  }
+}
+
+@media (min-width: 993px) {
+  .at-player-left {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .mobile-main-controls {
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  .mobile-extra-controls {
+    max-height: none;
+    flex-direction: row;
+    background: none;
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+
+    .at-player-left-group,
+    .at-player-center,
+    .at-player-right {
+      border-top: none;
+      padding: 0;
+    }
+  }
+
+  .button-text {
+    display: none;
+  }
 }
 
 .at-player-left,
@@ -114,15 +206,21 @@
     padding: 0.8rem;
     gap: 0.2rem;
     font-size: initial;
+    white-space: nowrap;
 
     &:hover,
     &.active {
       background: #5588c7;
     }
 
+    &.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     &.disabled:hover,
     &.disabled:active {
-      color: rgba(0, 0, 0, 0.3);
+      background: none;
     }
 
     i {
@@ -137,7 +235,7 @@
 
   > :global(.dropdown) {
     > span {
-      height: 40px;
+      height: 48px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -163,6 +261,34 @@
 
 .at-time-position {
   font-weight: bold;
+  font-size: 0.8rem;
+  padding: 0 0.5rem;
+}
+
+.at-song-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0 0.5rem;
+  min-width: 0;
+}
+
+.at-song-title {
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.9rem;
+}
+
+.at-song-artist {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .at-time-slider {
@@ -226,6 +352,16 @@
 
   & > .at-settings-group {
     border-bottom: 2px dashed #00000033;
+  }
+
+  @media (max-width: 992px) {
+    width: 350px;
+    max-width: 90vw;
+    top: 5px;
+    bottom: 5px;
+    right: 5px;
+    
+    // Ensure it sits above the player if needed, or adjust z-index
   }
 }
 

@@ -40,16 +40,17 @@ export const QuickSettings: React.FC<{ api: alphaTab.AlphaTabApi }> = ({ api }) 
         (api.settings.notation.tablatureFretFormatter as string) || ''
     );
     const [scrollMode, setScrollMode] = useState<alphaTab.ScrollMode>(api.settings.player.scrollMode);
+    const [layoutMode, setLayoutMode] = useState<alphaTab.LayoutMode>(api.settings.display.layoutMode);
 
     useAlphaTabEvent(api, 'settingsUpdated', () => {
         setScrollMode(api.settings.player.scrollMode);
         setFretFormatter((api.settings.notation.tablatureFretFormatter as string) || '');
+        setLayoutMode(api.settings.display.layoutMode);
     });
 
-    const onFretFormatterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const newValue = e.target.value;
-        setFretFormatter(newValue);
-        api.settings.notation.tablatureFretFormatter = newValue;
+    const onFretFormatterChange = (value: string) => {
+        setFretFormatter(value);
+        api.settings.notation.tablatureFretFormatter = value;
         api.updateSettings();
         api.render();
     };
@@ -61,32 +62,61 @@ export const QuickSettings: React.FC<{ api: alphaTab.AlphaTabApi }> = ({ api }) 
         setScrollMode(newValue);
     };
 
+    const onLayoutModeChange = (mode: alphaTab.LayoutMode) => {
+        api.settings.display.layoutMode = mode;
+        api.updateSettings();
+        api.render();
+        setLayoutMode(mode);
+    };
+
     return (
         <div className={styles['at-player-center']}>
             <span style={{ fontSize: '0.8em', fontWeight: 'bold' }}>Fret:</span>
-            <label className={fretFormatter === '' ? styles.active : ''}>
+            <label className={fretFormatter === '' ? styles.active : ''} title="Default (Numbers)">
                 <input
                     type="radio"
                     name="fretFormatter"
                     value=""
                     checked={fretFormatter === ''}
-                    onChange={onFretFormatterChange}
+                    onChange={() => onFretFormatterChange('')}
                 />
-                Default
+                <FontAwesomeIcon icon={solid.faHashtag} />
             </label>
-            <label className={fretFormatter === 'NoteName' ? styles.active : ''}>
+            <label className={fretFormatter === 'NoteName' ? styles.active : ''} title="Note Names">
                 <input
                     type="radio"
                     name="fretFormatter"
                     value="NoteName"
                     checked={fretFormatter === 'NoteName'}
-                    onChange={onFretFormatterChange}
+                    onChange={() => onFretFormatterChange('NoteName')}
                 />
-                NoteName
+                <FontAwesomeIcon icon={solid.faMusic} />
             </label>
 
+            <span style={{ fontSize: '0.8em', fontWeight: 'bold', marginLeft: '10px' }}>Layout:</span>
+            <label className={layoutMode === alphaTab.LayoutMode.Page ? styles.active : ''} title="Page">
+                <input
+                    type="radio"
+                    name="layoutMode"
+                    value={alphaTab.LayoutMode.Page}
+                    checked={layoutMode === alphaTab.LayoutMode.Page}
+                    onChange={() => onLayoutModeChange(alphaTab.LayoutMode.Page)}
+                />
+                <FontAwesomeIcon icon={solid.faFileLines} />
+            </label>
+            <label className={layoutMode === alphaTab.LayoutMode.Horizontal ? styles.active : ''} title="Horizontal">
+                <input
+                    type="radio"
+                    name="layoutMode"
+                    value={alphaTab.LayoutMode.Horizontal}
+                    checked={layoutMode === alphaTab.LayoutMode.Horizontal}
+                    onChange={() => onLayoutModeChange(alphaTab.LayoutMode.Horizontal)}
+                />
+                <FontAwesomeIcon icon={solid.faGripLines} />
+            </label>
+            
             <span style={{ fontSize: '0.8em', fontWeight: 'bold', marginLeft: '10px' }}>Follow:</span>
-            <label className={scrollMode !== alphaTab.ScrollMode.Off ? styles.active : ''}>
+            <label className={scrollMode !== alphaTab.ScrollMode.Off ? styles.active : ''} title="Follow Cursor">
                 <input
                     type="checkbox"
                     checked={scrollMode !== alphaTab.ScrollMode.Off}
@@ -114,6 +144,8 @@ export const PlayerControlsGroup: React.FC<PlayerControlsGroupProps> = ({
     const [isPlaying, setPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [endTime, setEndTime] = useState(1);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
     const formatDuration = (milliseconds: number) => {
         let seconds = milliseconds / 1000;
         const minutes = (seconds / 60) | 0;
@@ -121,6 +153,14 @@ export const PlayerControlsGroup: React.FC<PlayerControlsGroupProps> = ({
         return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     };
 
+    useAlphaTabEvent(api, 'playerPositionChanged', (args) => {
+        setCurrentTime(args.currentTime);
+        setEndTime(args.endTime);
+    });
+
+    useAlphaTabEvent(api, 'playerStateChanged', (args) => {
+        setPlaying(args.state === alphaTab.synth.PlayerState.Playing);
+    });
 
     return (
         <>
@@ -132,98 +172,109 @@ export const PlayerControlsGroup: React.FC<PlayerControlsGroupProps> = ({
                     }}
                 />
             </div>
-            <div className={styles['at-player']}>
+            <div className={`${styles['at-player']} ${isMobileMenuOpen ? styles['mobile-open'] : ''}`}>
                 <div className={styles['at-player-left']}>
-                    <button
-                        type="button"
-                        onClick={e => {
-                            e.preventDefault();
-                            openInputFile(api, (name) => setCurrentFileName(name));
-                        }}
-                        data-tooltip-id="tooltip-playground"
-                        data-tooltip-content="Open File">
-                        <FontAwesomeIcon icon={solid.faFolderOpen} />
-                    </button>
+                    <div className={styles['mobile-main-controls']}>
+                        <button
+                            type="button"
+                            onClick={e => {
+                                e.preventDefault();
+                                api.playPause();
+                            }}
+                            data-tooltip-id="tooltip-playground"
+                            data-tooltip-content="Play/Pause"
+                            className={`${api.isReadyForPlayback ? '' : ' disabled'}`}>
+                            <FontAwesomeIcon icon={isPlaying ? solid.faPause : solid.faPlay} />
+                        </button>
 
-                    <GoogleDrivePicker
-                        onFileSelect={onGoogleDriveFileSelect}
-                    />
-
-
-                    <button
-                        type="button"
-                        onClick={e => {
-                            e.preventDefault();
-                            api.playPause();
-                        }}
-                        data-tooltip-id="tooltip-playground"
-                        data-tooltip-content="Play/Pause"
-                        className={`${api.isReadyForPlayback ? '' : ' disabled'}`}>
-                        <FontAwesomeIcon icon={isPlaying ? solid.faPause : solid.faPlay} />
-                    </button>
-
-                    <PlayerProgressIndicator percentage={soundFontLoadPercentage} />
-
-                    {(api.score || currentFileName) && (
-                        <div className={styles['at-song-details']}>
-                            <span className={styles['at-song-title']}>
-                                {api.score ? (api.score.title || currentFileName || 'Untitled') : currentFileName}
-                            </span>
-                            {api.score && (
-                                <>
-                                    <span> - </span>
-                                    <span className={styles['at-song-artist']}>{api.score.artist}</span>
-                                </>
-                            )}
+                        {(api.score || currentFileName) && (
+                            <div className={styles['at-song-details']}>
+                                <span className={styles['at-song-title']}>
+                                    {api.score ? (api.score.title || currentFileName || 'Untitled') : currentFileName}
+                                </span>
+                            </div>
+                        )}
+                        <div className={styles['at-time-position']}>
+                            {formatDuration(currentTime)} / {formatDuration(endTime)}
                         </div>
-                    )}
+                    </div>
 
-                    <div className={styles['at-time-position']}>
-                        {formatDuration(currentTime)} / {formatDuration(endTime)}
+                    <div className={styles['mobile-extra-controls']}>
+                        <div className={styles['at-player-left-group']}>
+                            <button
+                                type="button"
+                                onClick={e => {
+                                    e.preventDefault();
+                                    openInputFile(api, (name) => setCurrentFileName(name));
+                                }}
+                                data-tooltip-id="tooltip-playground"
+                                data-tooltip-content="Open File">
+                                <FontAwesomeIcon icon={solid.faFolderOpen} /> <span className={styles['button-text']}>Open File</span>
+                            </button>
+
+                            <GoogleDrivePicker
+                                onFileSelect={onGoogleDriveFileSelect}
+                            >
+                                <span className={styles['button-text']}>Google Drive</span>
+                            </GoogleDrivePicker>
+                            <PlayerProgressIndicator percentage={soundFontLoadPercentage} />
+                        </div>
+
+                        <div className={styles['at-player-center']}>
+                            <QuickSettings api={api} />
+                        </div>
+
+                        <div className={styles['at-player-right']}>
+                            <button
+                                type="button"
+                                onClick={e => {
+                                    e.preventDefault();
+                                    if (bottomPanel === BottomPanel.MediaSyncEditor) {
+                                        onBottomPanelChange(BottomPanel.None);
+                                    } else {
+                                        onBottomPanelChange(BottomPanel.MediaSyncEditor);
+                                    }
+                                }}
+                                className={bottomPanel === BottomPanel.MediaSyncEditor ? styles.active : ''}>
+                                <FontAwesomeIcon icon={solid.faTimeline} /> <span className={styles['button-text']}>Media Sync</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={e => {
+                                    e.preventDefault();
+                                    if (sidePanel === SidePanel.TrackSelector) {
+                                        onSidePanelChange(SidePanel.None);
+                                    } else {
+                                        onSidePanelChange(SidePanel.TrackSelector);
+                                    }
+                                }}
+                                className={sidePanel === SidePanel.TrackSelector ? styles.active : ''}>
+                                <FontAwesomeIcon icon={solid.faListCheck} /> <span className={styles['button-text']}>Tracks</span>
+                            </button>
+                            <button
+                                type="button"
+                                onClick={e => {
+                                    e.preventDefault();
+                                    if (sidePanel === SidePanel.Settings) {
+                                        onSidePanelChange(SidePanel.None);
+                                    } else {
+                                        onSidePanelChange(SidePanel.Settings);
+                                    }
+                                }}
+                                className={sidePanel === SidePanel.Settings ? styles.active : ''}>
+                                <FontAwesomeIcon icon={solid.faGear} /> <span className={styles['button-text']}>Settings</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                <QuickSettings api={api} />
-
-                <div className={styles['at-player-right']}>
+                <div className={styles['mobile-toggler']}>
                     <button
                         type="button"
-                        onClick={e => {
-                            e.preventDefault();
-                            if (bottomPanel === BottomPanel.MediaSyncEditor) {
-                                onBottomPanelChange(BottomPanel.None);
-                            } else {
-                                onBottomPanelChange(BottomPanel.MediaSyncEditor);
-                            }
-                        }}
-                        className={bottomPanel === BottomPanel.MediaSyncEditor ? styles.active : ''}>
-                        <FontAwesomeIcon icon={solid.faTimeline} /> Media Sync
-                    </button>
-                    <button
-                        type="button"
-                        onClick={e => {
-                            e.preventDefault();
-                            if (sidePanel === SidePanel.TrackSelector) {
-                                onSidePanelChange(SidePanel.None);
-                            } else {
-                                onSidePanelChange(SidePanel.TrackSelector);
-                            }
-                        }}
-                        className={sidePanel === SidePanel.TrackSelector ? styles.active : ''}>
-                        <FontAwesomeIcon icon={solid.faListCheck} /> Tracks
-                    </button>
-                    <button
-                        type="button"
-                        onClick={e => {
-                            e.preventDefault();
-                            if (sidePanel === SidePanel.Settings) {
-                                onSidePanelChange(SidePanel.None);
-                            } else {
-                                onSidePanelChange(SidePanel.Settings);
-                            }
-                        }}
-                        className={sidePanel === SidePanel.Settings ? styles.active : ''}>
-                        <FontAwesomeIcon icon={solid.faGear} /> Settings
+                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        className={isMobileMenuOpen ? styles.active : ''}
+                    >
+                        <FontAwesomeIcon icon={isMobileMenuOpen ? solid.faChevronDown : solid.faChevronUp} />
                     </button>
                 </div>
             </div>
