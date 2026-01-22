@@ -41,11 +41,13 @@ export const QuickSettings: React.FC<{ api: alphaTab.AlphaTabApi }> = ({ api }) 
     );
     const [scrollMode, setScrollMode] = useState<alphaTab.ScrollMode>(api.settings.player.scrollMode);
     const [layoutMode, setLayoutMode] = useState<alphaTab.LayoutMode>(api.settings.display.layoutMode);
+    const [zoom, setZoom] = useState<number>(api.settings.display.scale);
 
     useAlphaTabEvent(api, 'settingsUpdated', () => {
         setScrollMode(api.settings.player.scrollMode);
         setFretFormatter((api.settings.notation.tablatureFretFormatter as string) || '');
         setLayoutMode(api.settings.display.layoutMode);
+        setZoom(api.settings.display.scale);
     });
 
     const onFretFormatterChange = (value: string) => {
@@ -67,6 +69,22 @@ export const QuickSettings: React.FC<{ api: alphaTab.AlphaTabApi }> = ({ api }) 
         api.updateSettings();
         api.render();
         setLayoutMode(mode);
+    };
+
+    const updateZoom = (newZoom: number) => {
+        const clampedZoom = Math.max(0.2, Math.min(3.0, newZoom));
+        api.settings.display.scale = clampedZoom;
+        api.updateSettings();
+        api.render();
+        setZoom(clampedZoom);
+    };
+
+    const onZoomIn = () => {
+        updateZoom(Math.round((zoom + 0.1) * 10) / 10);
+    };
+
+    const onZoomOut = () => {
+        updateZoom(Math.round((zoom - 0.1) * 10) / 10);
     };
 
     return (
@@ -124,6 +142,17 @@ export const QuickSettings: React.FC<{ api: alphaTab.AlphaTabApi }> = ({ api }) 
                 />
                 <FontAwesomeIcon icon={scrollMode !== alphaTab.ScrollMode.Off ? solid.faEye : solid.faEyeSlash} />
             </label>
+
+            <span style={{ fontSize: '0.8em', fontWeight: 'bold', marginLeft: '10px' }}>Zoom:</span>
+            <div className={styles['zoom-control']}>
+                <button type="button" onClick={onZoomOut}>
+                    <FontAwesomeIcon icon={solid.faMinus} />
+                </button>
+                <span className={styles['zoom-value']}>{Math.round(zoom * 100)}%</span>
+                <button type="button" onClick={onZoomIn}>
+                    <FontAwesomeIcon icon={solid.faPlus} />
+                </button>
+            </div>
         </div>
     );
 };
