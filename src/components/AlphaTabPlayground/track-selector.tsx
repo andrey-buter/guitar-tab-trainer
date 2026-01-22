@@ -11,12 +11,14 @@ export interface PlaygroundTrackSelectorProps {
     api: alphaTab.AlphaTabApi;
     isOpen: boolean;
     onClose: () => void;
+    trackSettingsId: string | null;
 }
 
 export const PlaygroundTrackSelector: React.FC<PlaygroundTrackSelectorProps> = ({
     api,
     isOpen: areSettingsOpen,
-    onClose
+    onClose,
+    trackSettingsId
 }) => {
     const [score, setScore] = useState(api.score);
     const [selectedTracks, setSelectedTracks] = useState(new Map<number, alphaTab.model.Track>());
@@ -50,7 +52,7 @@ export const PlaygroundTrackSelector: React.FC<PlaygroundTrackSelectorProps> = (
             <h4>Tracks</h4>
 
             {score?.tracks.map(t => (
-                <TrackItem key={t.index} api={api} track={t} isSelected={selectedTracks.has(t.index)} />
+                <TrackItem key={t.index} api={api} track={t} isSelected={selectedTracks.has(t.index)} trackSettingsId={trackSettingsId} />
             ))}
         </div>
     );

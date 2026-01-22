@@ -14,22 +14,34 @@ type StaffOptions = {
 export interface StaffItemProps {
     api: alphaTab.AlphaTabApi;
     staff: alphaTab.model.Staff;
+    trackSettingsId: string | null;
 }
 
-export const StaffItem: React.FC<StaffItemProps> = ({ api, staff }) => {
-    const [staffOptions, _setStaffOptions] = useState<StaffOptions>({
-        showNumbered: staff.showNumbered,
-        showSlash: staff.showSlash,
-        showTablature: staff.showTablature,
-        showStandardNotation: staff.showStandardNotation
+export const StaffItem: React.FC<StaffItemProps> = ({ api, staff, trackSettingsId }) => {
+    const [staffOptions, _setStaffOptions] = useState<StaffOptions>(() => {
+        if (trackSettingsId && typeof window !== 'undefined') {
+            const saved = localStorage.getItem(`at-staff-settings:${trackSettingsId}:${staff.track.index}:${staff.index}`);
+            if (saved) {
+                return JSON.parse(saved);
+            }
+        }
+        return {
+            showNumbered: staff.showNumbered,
+            showSlash: staff.showSlash,
+            showTablature: staff.showTablature,
+            showStandardNotation: staff.showStandardNotation
+        };
     });
 
     useEffectNoMount(() => {
         for (const key in staffOptions) {
             staff[key] = staffOptions[key];
         }
+        if (trackSettingsId && typeof window !== 'undefined') {
+            localStorage.setItem(`at-staff-settings:${trackSettingsId}:${staff.track.index}:${staff.index}`, JSON.stringify(staffOptions));
+        }
         api.render();
-    }, [api, staff, staffOptions]);
+    }, [api, staff, staffOptions, trackSettingsId]);
 
     const setStaffOptions = (updater: (current: StaffOptions) => StaffOptions) => {
         _setStaffOptions(value => {
@@ -90,23 +102,54 @@ export interface TrackItemProps {
     api: alphaTab.AlphaTabApi;
     track: alphaTab.model.Track;
     isSelected: boolean;
+    trackSettingsId: string | null;
 }
 
-export const TrackItem: React.FC<TrackItemProps> = ({ api, track, isSelected }) => {
-    const [isMute, setMute] = useState(track.playbackInfo.isMute);
+export const TrackItem: React.FC<TrackItemProps> = ({ api, track, isSelected, trackSettingsId }) => {
+    const [isMute, setMute] = useState(() => {
+        if (trackSettingsId && typeof window !== 'undefined') {
+            const saved = localStorage.getItem(`at-track-mute:${trackSettingsId}:${track.index}`);
+            if (saved !== null) return saved === 'true';
+        }
+        return track.playbackInfo.isMute;
+    });
+
     useEffectNoMount(() => {
         track.playbackInfo.isMute = isMute;
+        if (trackSettingsId && typeof window !== 'undefined') {
+            localStorage.setItem(`at-track-mute:${trackSettingsId}:${track.index}`, isMute.toString());
+        }
         api.changeTrackMute([track], isMute);
-    }, [api, track, isMute]);
+    }, [api, track, isMute, trackSettingsId]);
 
-    const [isSolo, setSolo] = useState(track.playbackInfo.isSolo);
+    const [isSolo, setSolo] = useState(() => {
+        if (trackSettingsId && typeof window !== 'undefined') {
+            const saved = localStorage.getItem(`at-track-solo:${trackSettingsId}:${track.index}`);
+            if (saved !== null) return saved === 'true';
+        }
+        return track.playbackInfo.isSolo;
+    });
+
     useEffectNoMount(() => {
         track.playbackInfo.isSolo = isSolo;
+        if (trackSettingsId && typeof window !== 'undefined') {
+            localStorage.setItem(`at-track-solo:${trackSettingsId}:${track.index}`, isSolo.toString());
+        }
         api.changeTrackSolo([track], isSolo);
-    }, [api, track, isSolo]);
+    }, [api, track, isSolo, trackSettingsId]);
 
-    const [volume, setVolume] = useState(track.playbackInfo.volume);
+    const [volume, setVolume] = useState(() => {
+        if (trackSettingsId && typeof window !== 'undefined') {
+            const saved = localStorage.getItem(`at-track-volume:${trackSettingsId}:${track.index}`);
+            if (saved !== null) return parseFloat(saved);
+        }
+        return track.playbackInfo.volume;
+    });
+
     useEffectNoMount(() => {
+        if (trackSettingsId && typeof window !== 'undefined') {
+            localStorage.setItem(`at-track-volume:${trackSettingsId}:${track.index}`, volume.toString());
+        }
         api.changeTrackVolume([track], volume / track.playbackInfo.volume);
     }, [api, track, volume]);
 
@@ -122,15 +165,36 @@ export const TrackItem: React.FC<TrackItemProps> = ({ api, track, isSelected }) 
         }
 
         newTracks.sort((a, b) => a.index - b.index);
+        
+        if (trackSettingsId && typeof window !== 'undefined') {
+            const selectedIndices = newTracks.map(t => t.index);
+            localStorage.setItem(`at-selected-tracks:${trackSettingsId}`, JSON.stringify(selectedIndices));
+        }
+        
         api.renderTracks(newTracks);
     };
 
-    const [transposeAudio, setTransposeAudio] = useState<number>(0);
-    const [transposeFull, setTransposeFull] = useState<number>(0);
+    const [transposeAudio, setTransposeAudio] = useState<number>(() => {
+        if (trackSettingsId && typeof window !== 'undefined') {
+            const saved = localStorage.getItem(`at-track-transpose-audio:${trackSettingsId}:${track.index}`);
+            if (saved !== null) return parseInt(saved);
+        }
+        return 0;
+    });
+    const [transposeFull, setTransposeFull] = useState<number>(() => {
+        if (trackSettingsId && typeof window !== 'undefined') {
+            const saved = localStorage.getItem(`at-track-transpose-full:${trackSettingsId}:${track.index}`);
+            if (saved !== null) return parseInt(saved);
+        }
+        return 0;
+    });
 
     useEffectNoMount(() => {
+        if (trackSettingsId && typeof window !== 'undefined') {
+            localStorage.setItem(`at-track-transpose-audio:${trackSettingsId}:${track.index}`, transposeAudio.toString());
+        }
         api.changeTrackTranspositionPitch([track], transposeAudio);
-    }, [api, track, transposeAudio]);
+    }, [api, track, transposeAudio, trackSettingsId]);
 
     useEffectNoMount(() => {
         const pitches = api.settings.notation.transpositionPitches;
@@ -138,9 +202,12 @@ export const TrackItem: React.FC<TrackItemProps> = ({ api, track, isSelected }) 
             pitches.push(0);
         }
         pitches[track.index] = transposeFull;
+        if (trackSettingsId && typeof window !== 'undefined') {
+            localStorage.setItem(`at-track-transpose-full:${trackSettingsId}:${track.index}`, transposeFull.toString());
+        }
         api.updateSettings();
         api.render();
-    }, [api, track, transposeFull]);
+    }, [api, track, transposeFull, trackSettingsId]);
 
     return (
         <div className={styles['track-item']} key={track.index}>
@@ -245,7 +312,7 @@ export const TrackItem: React.FC<TrackItemProps> = ({ api, track, isSelected }) 
             </div>
 
             {track.staves.map(s => (
-                <StaffItem api={api} staff={s} key={s.index} />
+                <StaffItem api={api} staff={s} key={s.index} trackSettingsId={trackSettingsId} />
             ))}
         </div>
     );

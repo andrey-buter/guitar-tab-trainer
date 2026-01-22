@@ -191,7 +191,7 @@ export const MediaSyncEditor: React.FC<MediaSyncEditorProps> = ({
         () => {
             initFromApi();
         },
-        []
+        [initFromApi]
     );
 
     useEffect(() => {

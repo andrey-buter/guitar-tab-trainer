@@ -27,6 +27,7 @@ export const AlphaTabPlayground: React.FC = () => {
         type: MediaType.Synth
     });
     const [currentFileName, setCurrentFileName] = useState<string | null>(null);
+    const [trackSettingsId, setTrackSettingsId] = useState<string | null>(null);
     const [isDownloading, setIsDownloading] = useState(false);
     const hasAttemptedStartupLoad = useRef(false);
     
@@ -58,6 +59,13 @@ export const AlphaTabPlayground: React.FC = () => {
         s.player.scrollMode = alphaTab.ScrollMode.Continuous;
 
         s.notation.tablatureFretFormatter = 'NoteName';
+        
+        // Use default file path as initial track settings ID
+        const defaultScreen = typeof window !== 'undefined' ? localStorage.getItem('alphaTab_defaultScreen') : null;
+        const defaultScreenMode = defaultScreen !== null ? JSON.parse(defaultScreen) : DefaultScreenMode.DefaultTab;
+        if (defaultScreenMode === DefaultScreenMode.DefaultTab) {
+            setTrackSettingsId('/files/canon-full.gp');
+        }
     });
 
 
@@ -97,7 +105,75 @@ export const AlphaTabPlayground: React.FC = () => {
                 type: MediaType.Synth
             });
         }
-    });
+
+        if (trackSettingsId && typeof window !== 'undefined') {
+            const savedSelectedTracks = localStorage.getItem(`at-selected-tracks:${trackSettingsId}`);
+            if (savedSelectedTracks) {
+                try {
+                    const indices = JSON.parse(savedSelectedTracks) as number[];
+                    const currentIndices = api!.tracks.map(t => t.index);
+                    const isSame = 
+                        indices.length === currentIndices.length && 
+                        indices.every(i => currentIndices.includes(i));
+                    
+                    if (!isSame) {
+                        const tracks = score.tracks.filter(t => indices.includes(t.index));
+                        if (tracks.length > 0) {
+                            api!.renderTracks(tracks);
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to parse saved selected tracks', e);
+                }
+            }
+
+            score.tracks.forEach(track => {
+                const muteKey = `at-track-mute:${trackSettingsId}:${track.index}`;
+                const soloKey = `at-track-solo:${trackSettingsId}:${track.index}`;
+                const volumeKey = `at-track-volume:${trackSettingsId}:${track.index}`;
+                const transposeAudioKey = `at-track-transpose-audio:${trackSettingsId}:${track.index}`;
+                const transposeFullKey = `at-track-transpose-full:${trackSettingsId}:${track.index}`;
+
+                const savedMute = localStorage.getItem(muteKey);
+                if (savedMute !== null) track.playbackInfo.isMute = savedMute === 'true';
+
+                const savedSolo = localStorage.getItem(soloKey);
+                if (savedSolo !== null) track.playbackInfo.isSolo = savedSolo === 'true';
+
+                const savedVolume = localStorage.getItem(volumeKey);
+                if (savedVolume !== null) track.playbackInfo.volume = parseFloat(savedVolume);
+
+                const savedTransposeAudio = localStorage.getItem(transposeAudioKey);
+                if (savedTransposeAudio !== null) {
+                    track.playbackInfo.transpositionPitch = parseInt(savedTransposeAudio);
+                }
+                
+                const savedTransposeFull = localStorage.getItem(transposeFullKey);
+                if (savedTransposeFull !== null) {
+                    const pitches = api!.settings.notation.transpositionPitches;
+                    while (pitches.length < track.index + 1) pitches.push(0);
+                    pitches[track.index] = parseInt(savedTransposeFull);
+                }
+
+                track.staves.forEach(staff => {
+                    const staffSettingsKey = `at-staff-settings:${trackSettingsId}:${track.index}:${staff.index}`;
+                    const savedStaff = localStorage.getItem(staffSettingsKey);
+                    if (savedStaff) {
+                        try {
+                            const options = JSON.parse(savedStaff);
+                            staff.showNumbered = options.showNumbered;
+                            staff.showSlash = options.showSlash;
+                            staff.showTablature = options.showTablature;
+                            staff.showStandardNotation = options.showStandardNotation;
+                        } catch (e) {
+                            console.error('Failed to parse saved staff settings', e);
+                        }
+                    }
+                });
+            });
+            api!.updateSettings();
+        }
+    }, [trackSettingsId]);
 
     useAlphaTabEvent(api, 'playerPositionChanged', () => {
         if (api?.settings.player.scrollMode !== alphaTab.ScrollMode.Off) {
@@ -119,6 +195,7 @@ export const AlphaTabPlayground: React.FC = () => {
         if (e.dataTransfer) {
             const files = e.dataTransfer.files;
             if (files.length === 1) {
+                setTrackSettingsId(files[0].name);
                 openFile(api!, files[0]);
             }
         }
@@ -310,6 +387,7 @@ export const AlphaTabPlayground: React.FC = () => {
                         return response.arrayBuffer();
                     })
                     .then(arrayBuffer => {
+                        setTrackSettingsId(file.id);
                         api.load(new Uint8Array(arrayBuffer)); 
                         console.log('Last Google Drive file loaded on startup:', file.name);
                     })
@@ -366,6 +444,7 @@ export const AlphaTabPlayground: React.FC = () => {
 
             const arrayBuffer = await response.arrayBuffer();
             const uint8Array = new Uint8Array(arrayBuffer);
+            setTrackSettingsId(file.id);
             api!.load(uint8Array, [0]);
             
             const saveSelection = localStorage.getItem('google_drive_save_selection') === 'true';
@@ -410,6 +489,7 @@ export const AlphaTabPlayground: React.FC = () => {
                         api={api}
                         onClose={() => setSidePanel(SidePanel.None)}
                         isOpen={sidePanel === SidePanel.TrackSelector}
+                        trackSettingsId={trackSettingsId}
                     />
                 )}
 
@@ -424,7 +504,10 @@ export const AlphaTabPlayground: React.FC = () => {
                                         className="button button--primary button--lg"
                                         onClick={e => {
                                             e.preventDefault();
-                                            openInputFile(api, name => setCurrentFileName(name));
+                                            openInputFile(api, name => {
+                                                setCurrentFileName(name);
+                                                setTrackSettingsId(name);
+                                            });
                                         }}>
                                         <FontAwesomeIcon icon={solid.faFolderOpen} /> Open File
                                     </button>
