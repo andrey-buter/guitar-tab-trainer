@@ -42,13 +42,21 @@ export const QuickSettings: React.FC<{ api: alphaTab.AlphaTabApi }> = ({ api }) 
     const [scrollMode, setScrollMode] = useState<alphaTab.ScrollMode>(api.settings.player.scrollMode);
     const [layoutMode, setLayoutMode] = useState<alphaTab.LayoutMode>(api.settings.display.layoutMode);
     const [zoom, setZoom] = useState<number>(api.settings.display.scale);
+    const [metronomeEnabled, setMetronomeEnabled] = useState<boolean>(api.metronomeVolume > 0);
 
     useAlphaTabEvent(api, 'settingsUpdated', () => {
         setScrollMode(api.settings.player.scrollMode);
         setFretFormatter((api.settings.notation.tablatureFretFormatter as string) || '');
         setLayoutMode(api.settings.display.layoutMode);
         setZoom(api.settings.display.scale);
+        setMetronomeEnabled(api.metronomeVolume > 0);
     });
+
+    const onMetronomeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const enabled = e.target.checked;
+        api.metronomeVolume = enabled ? 1 : 0;
+        setMetronomeEnabled(enabled);
+    };
 
     const onFretFormatterChange = (value: string) => {
         setFretFormatter(value);
@@ -141,6 +149,16 @@ export const QuickSettings: React.FC<{ api: alphaTab.AlphaTabApi }> = ({ api }) 
                     onChange={onScrollModeChange}
                 />
                 <FontAwesomeIcon icon={scrollMode !== alphaTab.ScrollMode.Off ? solid.faEye : solid.faEyeSlash} />
+            </label>
+
+            <span style={{ fontSize: '0.8em', fontWeight: 'bold', marginLeft: '10px' }}>Metro:</span>
+            <label className={metronomeEnabled ? styles.active : ''} title="Metronome">
+                <input
+                    type="checkbox"
+                    checked={metronomeEnabled}
+                    onChange={onMetronomeChange}
+                />
+                <FontAwesomeIcon icon={solid.faDrum} />
             </label>
 
             <span style={{ fontSize: '0.8em', fontWeight: 'bold', marginLeft: '10px' }}>Zoom:</span>
