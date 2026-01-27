@@ -1,0 +1,252 @@
+.at-player {
+  display: flex;
+  justify-content: space-between;
+  background: #436d9d;
+  color: #fff;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.at-player-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-main-controls {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  width: 100%;
+}
+
+.mobile-extra-controls {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height 0.3s ease;
+  background: rgba(0, 0, 0, 0.1);
+  width: 100%;
+
+  .at-player-left-group,
+  .at-player-center,
+  .at-player-right {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 0 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+.mobile-open .mobile-extra-controls {
+  max-height: 70vh;
+  overflow-y: auto;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.mobile-toggler {
+  display: none;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 992px) {
+  .mobile-toggler {
+    display: flex;
+    align-items: center;
+  }
+
+  .at-player-center {
+    display: flex;
+    justify-content: flex-start;
+    width: 100%;
+    padding: 0.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .button-text {
+    display: inline;
+    margin-left: 0.25rem;
+  }
+}
+
+@media (min-width: 993px) {
+  .at-player-left {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .mobile-main-controls {
+    flex: 0 0 auto;
+    width: auto;
+  }
+
+  .mobile-extra-controls {
+    max-height: none;
+    flex-direction: row;
+    background: none;
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+
+    .at-player-left-group,
+    .at-player-center,
+    .at-player-right {
+      border-top: none;
+      padding: 0;
+    }
+  }
+
+  .button-text {
+    display: none;
+  }
+}
+
+.at-player-left,
+.at-player-right,
+.at-player-center {
+  > * {
+    margin-right: 4px;
+  }
+
+  > button,
+  > label {
+    cursor: pointer;
+    color: #fff;
+    display: flex;
+    text-align: center;
+    box-sizing: content-box;
+    align-items: center;
+    justify-content: center;
+    background: none;
+    border: 0;
+    padding: 0;
+    transition:
+      color 0.15s ease-in-out,
+      background-color 0.15s ease-in-out,
+      border-color 0.15s ease-in-out,
+      box-shadow 0.15s ease-in-out;
+    padding: 0.8rem;
+    gap: 0.2rem;
+    font-size: initial;
+    white-space: nowrap;
+
+    &:hover,
+    &.active {
+      background: #5588c7;
+    }
+
+    &.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    &.disabled:hover,
+    &.disabled:active {
+      background: none;
+    }
+
+    i {
+      vertical-align: top;
+      font-size: 16px;
+    }
+  }
+
+  > label input {
+    display: none;
+  }
+
+  > :global(.dropdown) {
+    > span {
+      height: 48px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 0.5rem;
+    }
+
+    svg {
+      margin-right: 0.25rem;
+    }
+
+    &:hover {
+      background: #5588c7;
+    }
+
+    > :global(.dropdown__menu) {
+      color: initial;
+      top: auto;
+      z-index: 1300;
+      bottom: calc(100% - var(--ifm-navbar-item-padding-vertical) - 1rem);
+    }
+  }
+}
+
+.at-time-position {
+  font-weight: bold;
+  font-size: 0.8rem;
+  padding: 0 0.5rem;
+}
+
+.at-song-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+  padding: 0 0.5rem;
+  min-width: 0;
+}
+
+.at-song-title {
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 0.9rem;
+}
+
+.at-song-artist {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.at-time-slider {
+  height: 4px;
+  background: #d9d9d9;
+}
+
+.at-time-slider-value {
+  height: 4px;
+  background: #6ba5e4;
+  width: 0;
+}
+
+.at-speed-value {
+  font-size: 0.8rem;
+  margin: 0 0.5em;
+}
+
+.progress {
+  position: relative;
+  height: 40px;
+  padding-top: 4px;
+}
+
+.progress .progress-value {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  position: absolute;
+  top: 0;
+  left: 0;
+  font-size: 8px;
+}

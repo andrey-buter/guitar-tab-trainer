@@ -1,0 +1,108 @@
+/* Styles for control */
+.at-wrap {
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+[data-theme="light"] .at-wrap {
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  background: #fff;
+}
+
+[data-theme="dark"] .at-wrap {
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: #1b1b1d;
+}
+
+.at-content {
+  flex: 1 1 auto;
+  overflow: hidden;
+  position: relative;
+}
+
+.at-viewport {
+  overflow-y: auto;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding-right: 0;
+}
+
+.at-overlay {
+  position: absolute;
+  display: flex;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1010;
+  backdrop-filter: blur(3px);
+  background: rgba(0, 0, 0, 0.5);
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.at-overlay-content {
+  margin-top: 20px;
+  background: #fff;
+  box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.3);
+  padding: 10px;
+}
+
+[data-theme="light"] .at-overlay-content {
+  box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.3);
+}
+
+[data-theme="dark"] .at-overlay-content {
+  box-shadow: 0px 5px 10px 0px rgba(255, 255, 255, 0.3);
+}
+
+.at-overlay-content > .spinner-border {
+  color: #4972a1;
+}
+
+.at-footer {
+  flex: 0 0 auto;
+}
+
+.at-empty-view {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+}
+
+.at-empty-view-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+  padding: 3rem;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 90%;
+}
+
+[data-theme="dark"] .at-empty-view-content {
+  background: rgba(255, 255, 255, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.at-empty-view-divider {
+  font-weight: bold;
+  opacity: 0.5;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
