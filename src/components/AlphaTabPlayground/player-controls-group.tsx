@@ -43,6 +43,13 @@ export const QuickSettings: React.FC<{ api: alphaTab.AlphaTabApi }> = ({ api }) 
     const [layoutMode, setLayoutMode] = useState<alphaTab.LayoutMode>(api.settings.display.layoutMode);
     const [zoom, setZoom] = useState<number>(api.settings.display.scale);
     const [metronomeEnabled, setMetronomeEnabled] = useState<boolean>(api.metronomeVolume > 0);
+    const [currentBpm, setCurrentBpm] = useState<number>(0);
+
+    useEffect(() => {
+        if (api.score) {
+            setCurrentBpm(api.score.tempo);
+        }
+    }, [api]);
 
     useAlphaTabEvent(api, 'settingsUpdated', () => {
         setScrollMode(api.settings.player.scrollMode);
@@ -50,6 +57,37 @@ export const QuickSettings: React.FC<{ api: alphaTab.AlphaTabApi }> = ({ api }) 
         setLayoutMode(api.settings.display.layoutMode);
         setZoom(api.settings.display.scale);
         setMetronomeEnabled(api.metronomeVolume > 0);
+    });
+
+    useAlphaTabEvent(api, 'scoreLoaded', (score) => {
+        setCurrentBpm(score.tempo);
+    });
+
+    useAlphaTabEvent(api, 'playerPositionChanged', (args) => {
+        const currentTick = args.currentTick;
+        if (!api.score) return;
+        let newBpm = api.score.tempo;
+
+        for (const mb of api.score.masterBars) {
+            if (mb.start > currentTick) break;
+
+            const mbAny = mb as any;
+            if (typeof mbAny.tempo === 'number') {
+                newBpm = mbAny.tempo;
+            }
+            if (mbAny.tempoAutomation?.value) {
+                newBpm = mbAny.tempoAutomation.value;
+            }
+            if (mbAny.tempoChanges) {
+                for (const tc of mbAny.tempoChanges) {
+                    if (tc.tick <= currentTick) {
+                        newBpm = tc.tempo;
+                    }
+                }
+            }
+        }
+
+        setCurrentBpm(newBpm);
     });
 
     const onMetronomeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -160,6 +198,9 @@ export const QuickSettings: React.FC<{ api: alphaTab.AlphaTabApi }> = ({ api }) 
                 />
                 <FontAwesomeIcon icon={solid.faDrum} />
             </label>
+
+            <span style={{ fontSize: '0.8em', fontWeight: 'bold', marginLeft: '10px' }}>BPM:</span>
+            <span style={{ fontSize: '0.8em', marginLeft: '5px' }}>{currentBpm}</span>
 
             <span style={{ fontSize: '0.8em', fontWeight: 'bold', marginLeft: '10px' }}>Zoom:</span>
             <div className={styles['zoom-control']}>

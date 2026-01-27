@@ -391,19 +391,29 @@ export const AlphaTabPlayground: React.FC = () => {
                         api.load(new Uint8Array(arrayBuffer)); 
                         console.log('Last Google Drive file loaded on startup:', file.name);
                     })
-                    .catch(err => {
-                        console.error('Error loading last file on startup:', err);
+                    .catch(e => {
+                        console.error('Error loading last file on startup:', e);
+                        
+                        if (api) {
+                            try { api.stop(); } catch(err) {/* ignore */}
+                        }
+
                         // Fallback to default file if startup load fails
                         const defaultScreen = localStorage.getItem('alphaTab_defaultScreen');
                         const defaultScreenMode = defaultScreen !== null ? JSON.parse(defaultScreen) : DefaultScreenMode.DefaultTab;
+                        
                         if (defaultScreenMode === DefaultScreenMode.DefaultTab) {
-                            api.load('/files/canon-full.gp', [0, 1]);
+                            const defaultFile = '/files/canon-full.gp';
+                            setTrackSettingsId(defaultFile);
+                            api.load(defaultFile, [0, 1]);
+                            setCurrentFileName('Canon');
                         } else {
                             setLoading(false);
+                            setTrackSettingsId(null);
+                            setCurrentFileName(null);
                         }
                         setIsDownloading(false);
                     })
-
                     .finally(() => {
                         setTimeout(() => setIsDownloading(false), 500);
                     });
