@@ -128,12 +128,12 @@ function getSortValue(
 const config: Config = {
   title: "alphaTab",
   tagline: "Build modern music notation apps for web, desktop and mobile",
-  url: "https://alphatab.net",
-  baseUrl: "/",
+  url: "https://andrey-buter.github.io",
+  baseUrl: "/guitar-tab-trainer/",
   favicon: "img/favicon.ico",
-  organizationName: "CoderLine",
-  projectName: "alphaTab",
-  onBrokenLinks: "throw",
+  organizationName: "andrey-buter",
+  projectName: "guitar-tab-trainer",
+  deploymentBranch: "gh-pages",
   customFields: {
     isPreRelease: isPreRelease,
     alphaTabVersion: alphaTabVersion,
