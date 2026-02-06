@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en" dir="ltr" class="docs-wrapper plugin-docs plugin-id-default docs-version-current docs-doc-page docs-doc-id-GOOGLE_DRIVE_SETUP" data-has-hydrated="false">
+<head>
+<meta charset="UTF-8">
+<meta name="generator" content="Docusaurus v3.9.2">
+<title data-rh="true">Google Drive Integration Setup Guide | alphaTab</title><meta data-rh="true" name="viewport" content="width=device-width,initial-scale=1"><meta data-rh="true" name="twitter:card" content="summary_large_image"><meta data-rh="true" property="og:url" content="https://andrey-buter.github.io/guitar-tab-trainer/docs/GOOGLE_DRIVE_SETUP"><meta data-rh="true" property="og:locale" content="en"><meta data-rh="true" name="docusaurus_locale" content="en"><meta data-rh="true" name="docsearch:language" content="en"><meta data-rh="true" name="docusaurus_version" content="current"><meta data-rh="true" name="docusaurus_tag" content="docs-default-current"><meta data-rh="true" name="docsearch:version" content="current"><meta data-rh="true" name="docsearch:docusaurus_tag" content="docs-default-current"><meta data-rh="true" property="og:title" content="Google Drive Integration Setup Guide | alphaTab"><meta data-rh="true" name="description" content="This guide will help you set up Google Drive API integration for the AlphaTab Playground."><meta data-rh="true" property="og:description" content="This guide will help you set up Google Drive API integration for the AlphaTab Playground."><link data-rh="true" rel="icon" href="/guitar-tab-trainer/img/favicon.ico"><link data-rh="true" rel="canonical" href="https://andrey-buter.github.io/guitar-tab-trainer/docs/GOOGLE_DRIVE_SETUP"><link data-rh="true" rel="alternate" href="https://andrey-buter.github.io/guitar-tab-trainer/docs/GOOGLE_DRIVE_SETUP" hreflang="en"><link data-rh="true" rel="alternate" href="https://andrey-buter.github.io/guitar-tab-trainer/docs/GOOGLE_DRIVE_SETUP" hreflang="x-default"><link data-rh="true" rel="preconnect" href="https://26AE6KNYRK-dsn.algolia.net" crossorigin="anonymous"><link rel="search" type="application/opensearchdescription+xml" title="alphaTab" href="/guitar-tab-trainer/opensearch.xml"><link rel="stylesheet" href="/guitar-tab-trainer/assets/css/styles.ec941891.css">
+<script src="/guitar-tab-trainer/assets/js/runtime~main.2da2d1ac.js" defer="defer"></script>
+<script src="/guitar-tab-trainer/assets/js/main.1c265383.js" defer="defer"></script>
+</head>
+<body class="navigation-with-keyboard">
+<svg style="display: none;"><defs>
+<symbol id="theme-svg-external-link" viewBox="0 0 24 24"><path fill="currentColor" d="M21 13v10h-21v-19h12v2h-10v15h17v-8h2zm3-12h-10.988l4.035 4-6.977 7.07 2.828 2.828 6.977-7.07 4.125 4.172v-11z"/></symbol>
+</defs></svg>
+<script>!function(){var t=function(){try{return new URLSearchParams(window.location.search).get("docusaurus-theme")}catch(t){}}()||function(){try{return window.localStorage.getItem("theme")}catch(t){}}();document.documentElement.setAttribute("data-theme",t||"light"),document.documentElement.setAttribute("data-theme-choice",t||"light")}(),function(){try{const c=new URLSearchParams(window.location.search).entries();for(var[t,e]of c)if(t.startsWith("docusaurus-data-")){var a=t.replace("docusaurus-data-","data-");document.documentElement.setAttribute(a,e)}}catch(t){}}()</script><div id="__docusaurus"><link rel="preload" as="image" href="/guitar-tab-trainer/img/alphaTab.png"><div role="region" aria-label="Skip to main content"><a class="skipToContent_fXgn" href="#__docusaurus_skipToContent_fallback">Skip to main content</a></div><nav aria-label="Main" class="theme-layout-navbar navbar navbar--fixed-top"><div class="navbar__inner"><div class="theme-layout-navbar-left navbar__items"><button aria-label="Toggle navigation bar" aria-expanded="false" class="navbar__toggle clean-btn" type="button"><svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="2" d="M4 7h22M4 15h22M4 23h22"></path></svg></button><a class="navbar__brand" href="/guitar-tab-trainer/"><div class="navbar__logo"><img src="/guitar-tab-trainer/img/alphaTab.png" alt="alphaTab Logo" class="themedComponent_mlkZ themedComponent--light_NVdE"><img src="/guitar-tab-trainer/img/alphaTab.png" alt="alphaTab Logo" class="themedComponent_mlkZ themedComponent--dark_xIcU"></div><b class="navbar__title text--truncate">alphaTab</b></a><a class="navbar__item navbar__link" href="/guitar-tab-trainer/docs/introduction">Docs</a><a class="navbar__item navbar__link" href="/guitar-tab-trainer/docs/tutorials">Tutorial</a><a class="navbar__item navbar__link" href="/guitar-tab-trainer/docs/alphatex/introduction">alphaTex</a><a class="navbar__item navbar__link" href="/guitar-tab-trainer/docs/showcase/introduction">Showcase</a><a class="navbar__item navbar__link" href="/guitar-tab-trainer/docs/playground/">Playground</a></div><div class="theme-layout-navbar-right navbar__items navbar__items--right"><div class="navbar__item dropdown dropdown--hoverable dropdown--right"><a href="#" aria-haspopup="true" aria-expanded="false" role="button" class="navbar__link">1.8.0</a><ul class="dropdown__menu"><li><a href="https://next.alphatab.net" target="_blank" rel="noopener noreferrer" class="dropdown__link">Next Version 🚧<svg width="12" height="12" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li><a href="https://alphatab.net" target="_blank" rel="noopener noreferrer" class="dropdown__link">Stable Version<svg width="12" height="12" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div><a href="https://github.com/CoderLine/alphaTab" target="_blank" rel="noopener noreferrer" class="navbar__item navbar__link header-github-link">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a><div class="toggle_vylO colorModeToggle_DEke"><button class="clean-btn toggleButton_gllP toggleButtonDisabled_aARS" type="button" disabled="" title="system mode" aria-label="Switch between dark and light mode (currently system mode)"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP lightToggleIcon_pyhR"><path fill="currentColor" d="M12,9c1.65,0,3,1.35,3,3s-1.35,3-3,3s-3-1.35-3-3S10.35,9,12,9 M12,7c-2.76,0-5,2.24-5,5s2.24,5,5,5s5-2.24,5-5 S14.76,7,12,7L12,7z M2,13l2,0c0.55,0,1-0.45,1-1s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S1.45,13,2,13z M20,13l2,0c0.55,0,1-0.45,1-1 s-0.45-1-1-1l-2,0c-0.55,0-1,0.45-1,1S19.45,13,20,13z M11,2v2c0,0.55,0.45,1,1,1s1-0.45,1-1V2c0-0.55-0.45-1-1-1S11,1.45,11,2z M11,20v2c0,0.55,0.45,1,1,1s1-0.45,1-1v-2c0-0.55-0.45-1-1-1C11.45,19,11,19.45,11,20z M5.99,4.58c-0.39-0.39-1.03-0.39-1.41,0 c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0s0.39-1.03,0-1.41L5.99,4.58z M18.36,16.95 c-0.39-0.39-1.03-0.39-1.41,0c-0.39,0.39-0.39,1.03,0,1.41l1.06,1.06c0.39,0.39,1.03,0.39,1.41,0c0.39-0.39,0.39-1.03,0-1.41 L18.36,16.95z M19.42,5.99c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06c-0.39,0.39-0.39,1.03,0,1.41 s1.03,0.39,1.41,0L19.42,5.99z M7.05,18.36c0.39-0.39,0.39-1.03,0-1.41c-0.39-0.39-1.03-0.39-1.41,0l-1.06,1.06 c-0.39,0.39-0.39,1.03,0,1.41s1.03,0.39,1.41,0L7.05,18.36z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP darkToggleIcon_wfgR"><path fill="currentColor" d="M9.37,5.51C9.19,6.15,9.1,6.82,9.1,7.5c0,4.08,3.32,7.4,7.4,7.4c0.68,0,1.35-0.09,1.99-0.27C17.45,17.19,14.93,19,12,19 c-3.86,0-7-3.14-7-7C5,9.07,6.81,6.55,9.37,5.51z M12,3c-4.97,0-9,4.03-9,9s4.03,9,9,9s9-4.03,9-9c0-0.46-0.04-0.92-0.1-1.36 c-0.98,1.37-2.58,2.26-4.4,2.26c-2.98,0-5.4-2.42-5.4-5.4c0-1.81,0.89-3.42,2.26-4.4C12.92,3.04,12.46,3,12,3L12,3z"></path></svg><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" class="toggleIcon_g3eP systemToggleIcon_QzmC"><path fill="currentColor" d="m12 21c4.971 0 9-4.029 9-9s-4.029-9-9-9-9 4.029-9 9 4.029 9 9 9zm4.95-13.95c1.313 1.313 2.05 3.093 2.05 4.95s-0.738 3.637-2.05 4.95c-1.313 1.313-3.093 2.05-4.95 2.05v-14c1.857 0 3.637 0.737 4.95 2.05z"></path></svg></button></div><div class="navbarSearchContainer_Bca1"><button type="button" class="DocSearch DocSearch-Button" aria-label="Search (Meta+k)" aria-keyshortcuts="Meta+k"><span class="DocSearch-Button-Container"><svg width="20" height="20" class="DocSearch-Search-Icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="8" stroke="currentColor" fill="none" stroke-width="1.4"></circle><path d="m21 21-4.3-4.3" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="DocSearch-Button-Placeholder">Search</span></span><span class="DocSearch-Button-Keys"></span></button></div></div></div><div role="presentation" class="navbar-sidebar__backdrop"></div></nav><div id="__docusaurus_skipToContent_fallback" class="theme-layout-main main-wrapper mainWrapper_z2l0"><div class="docsWrapper_hBAB"><button aria-label="Scroll back to top" class="clean-btn theme-back-to-top-button backToTopButton_sjWU" type="button"></button><div class="docRoot_UBD9"><main class="docMainContainer_TBSr docMainContainerEnhanced_lQrH"><div class="container padding-top--md padding-bottom--lg"><div class="row"><div class="col docItemCol_VOVn"><div class="docItemContainer_Djhp"><article><div class="tocCollapsible_ETCw theme-doc-toc-mobile tocMobile_ITEo"><button type="button" class="clean-btn tocCollapsibleButton_TO0P">On this page</button></div><div class="theme-doc-markdown markdown"><header><h1>Google Drive Integration Setup Guide</h1></header>
+<p>This guide will help you set up Google Drive API integration for the AlphaTab Playground.</p>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="prerequisites">Prerequisites<a href="#prerequisites" class="hash-link" aria-label="Direct link to Prerequisites" title="Direct link to Prerequisites" translate="no">​</a></h2>
+<ul>
+<li class="">Google Account</li>
+<li class="">Access to Google Cloud Console</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-1-create-google-cloud-project">Step 1: Create Google Cloud Project<a href="#step-1-create-google-cloud-project" class="hash-link" aria-label="Direct link to Step 1: Create Google Cloud Project" title="Direct link to Step 1: Create Google Cloud Project" translate="no">​</a></h2>
+<ol>
+<li class="">Go to <a href="https://console.cloud.google.com/" target="_blank" rel="noopener noreferrer" class="">Google Cloud Console</a></li>
+<li class="">Click <strong>&quot;Create Project&quot;</strong> or select an existing project</li>
+<li class="">Give your project a name (e.g., &quot;AlphaTab Playground&quot;)</li>
+<li class="">Click <strong>&quot;Create&quot;</strong></li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-2-enable-google-drive-api">Step 2: Enable Google Drive API<a href="#step-2-enable-google-drive-api" class="hash-link" aria-label="Direct link to Step 2: Enable Google Drive API" title="Direct link to Step 2: Enable Google Drive API" translate="no">​</a></h2>
+<ol>
+<li class="">In the Google Cloud Console, go to <strong>&quot;APIs &amp; Services&quot;</strong> → <strong>&quot;Library&quot;</strong></li>
+<li class="">Search for <strong>&quot;Google Drive API&quot;</strong></li>
+<li class="">Click on it and press <strong>&quot;Enable&quot;</strong></li>
+<li class="">Search for <strong>&quot;Google Picker API&quot;</strong> and enable it as well</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-3-create-oauth-20-credentials">Step 3: Create OAuth 2.0 Credentials<a href="#step-3-create-oauth-20-credentials" class="hash-link" aria-label="Direct link to Step 3: Create OAuth 2.0 Credentials" title="Direct link to Step 3: Create OAuth 2.0 Credentials" translate="no">​</a></h2>
+<ol>
+<li class="">
+<p>Go to <strong>&quot;APIs &amp; Services&quot;</strong> → <strong>&quot;Credentials&quot;</strong></p>
+</li>
+<li class="">
+<p>Click <strong>&quot;Create Credentials&quot;</strong> → <strong>&quot;OAuth client ID&quot;</strong></p>
+</li>
+<li class="">
+<p>If prompted, configure the OAuth consent screen:</p>
+<ul>
+<li class="">Choose <strong>&quot;External&quot;</strong> user type</li>
+<li class="">Fill in the required fields:<!-- -->
+<ul>
+<li class="">App name: &quot;AlphaTab Playground&quot;</li>
+<li class="">User support email: your email</li>
+<li class="">Developer contact information: your email</li>
+</ul>
+</li>
+<li class="">Click <strong>&quot;Save and Continue&quot;</strong></li>
+<li class="">On the Scopes page, click <strong>&quot;Save and Continue&quot;</strong></li>
+<li class="">On the Test users page, you can add test users or skip</li>
+<li class="">Click <strong>&quot;Save and Continue&quot;</strong></li>
+</ul>
+</li>
+<li class="">
+<p>Back to creating OAuth client ID:</p>
+<ul>
+<li class=""><strong>Application type</strong>: Web application</li>
+<li class=""><strong>Name</strong>: &quot;AlphaTab Web Client&quot;</li>
+<li class=""><strong>Authorized JavaScript origins</strong>:<!-- -->
+<ul>
+<li class=""><code>http://localhost:3000</code> (for development)</li>
+<li class=""><code>https://yourdomain.com</code> (for production)</li>
+</ul>
+</li>
+<li class=""><strong>Authorized redirect URIs</strong>: (optional for implicit flow)</li>
+<li class="">Click <strong>&quot;Create&quot;</strong></li>
+</ul>
+</li>
+<li class="">
+<p><strong>Save your credentials</strong>:</p>
+<ul>
+<li class="">Copy the <strong>Client ID</strong> (looks like: <code>xxxxx.apps.googleusercontent.com</code>)</li>
+<li class="">You&#x27;ll use this in the next step</li>
+</ul>
+</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-4-create-api-key-for-picker">Step 4: Create API Key (for Picker)<a href="#step-4-create-api-key-for-picker" class="hash-link" aria-label="Direct link to Step 4: Create API Key (for Picker)" title="Direct link to Step 4: Create API Key (for Picker)" translate="no">​</a></h2>
+<ol>
+<li class="">Go to <strong>&quot;APIs &amp; Services&quot;</strong> → <strong>&quot;Credentials&quot;</strong></li>
+<li class="">Click <strong>&quot;Create Credentials&quot;</strong> → <strong>&quot;API key&quot;</strong></li>
+<li class=""><strong>Save your API Key</strong></li>
+<li class="">(Optional) Click <strong>&quot;Restrict Key&quot;</strong> to add restrictions:<!-- -->
+<ul>
+<li class="">Under <strong>&quot;API restrictions&quot;</strong>, select <strong>&quot;Restrict key&quot;</strong></li>
+<li class="">Choose <strong>&quot;Google Drive API&quot;</strong> and <strong>&quot;Google Picker API&quot;</strong></li>
+<li class="">Under <strong>&quot;Website restrictions&quot;</strong>, add your domains</li>
+<li class="">Click <strong>&quot;Save&quot;</strong></li>
+</ul>
+</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-5-configure-the-component">Step 5: Configure the Component<a href="#step-5-configure-the-component" class="hash-link" aria-label="Direct link to Step 5: Configure the Component" title="Direct link to Step 5: Configure the Component" translate="no">​</a></h2>
+<ol>
+<li class="">
+<p>Open the file: <code>src/components/AlphaTabPlayground/google-drive-picker.tsx</code></p>
+</li>
+<li class="">
+<p>Find these lines near the top of the component (around line 48-50):</p>
+</li>
+</ol>
+<div class="language-typescript codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-typescript codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#393A34"><span class="token keyword" style="color:#00009f">const</span><span class="token plain"> </span><span class="token constant" style="color:#36acaa">CLIENT_ID</span><span class="token plain"> </span><span class="token operator" style="color:#393A34">=</span><span class="token plain"> </span><span class="token string" style="color:#e3116c">&quot;YOUR_CLIENT_ID.apps.googleusercontent.com&quot;</span><span class="token punctuation" style="color:#393A34">;</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token keyword" style="color:#00009f">const</span><span class="token plain"> </span><span class="token constant" style="color:#36acaa">API_KEY</span><span class="token plain"> </span><span class="token operator" style="color:#393A34">=</span><span class="token plain"> </span><span class="token string" style="color:#e3116c">&quot;YOUR_API_KEY&quot;</span><span class="token punctuation" style="color:#393A34">;</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token keyword" style="color:#00009f">const</span><span class="token plain"> </span><span class="token constant" style="color:#36acaa">SCOPES</span><span class="token plain"> </span><span class="token operator" style="color:#393A34">=</span><span class="token plain"> </span><span class="token string" style="color:#e3116c">&quot;https://www.googleapis.com/auth/drive.readonly&quot;</span><span class="token punctuation" style="color:#393A34">;</span><br></span></code></pre></div></div>
+<ol start="3">
+<li class="">Replace the values:<!-- -->
+<ul>
+<li class=""><code>YOUR_CLIENT_ID</code> → Your OAuth 2.0 Client ID from Step 3</li>
+<li class=""><code>YOUR_API_KEY</code> → Your API Key from Step 4</li>
+<li class=""><code>SCOPES</code> → Keep as is for read-only access</li>
+</ul>
+</li>
+</ol>
+<p>Example:</p>
+<div class="language-typescript codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-typescript codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#393A34"><span class="token keyword" style="color:#00009f">const</span><span class="token plain"> </span><span class="token constant" style="color:#36acaa">CLIENT_ID</span><span class="token plain"> </span><span class="token operator" style="color:#393A34">=</span><span class="token plain"> </span><span class="token string" style="color:#e3116c">&quot;123456789-abcdefghijklmnop.apps.googleusercontent.com&quot;</span><span class="token punctuation" style="color:#393A34">;</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token keyword" style="color:#00009f">const</span><span class="token plain"> </span><span class="token constant" style="color:#36acaa">API_KEY</span><span class="token plain"> </span><span class="token operator" style="color:#393A34">=</span><span class="token plain"> </span><span class="token string" style="color:#e3116c">&quot;AIzaSyABC-1234567890DefghIJKlmnopQRSTuv&quot;</span><span class="token punctuation" style="color:#393A34">;</span><span class="token plain"></span><br></span><span class="token-line" style="color:#393A34"><span class="token plain"></span><span class="token keyword" style="color:#00009f">const</span><span class="token plain"> </span><span class="token constant" style="color:#36acaa">SCOPES</span><span class="token plain"> </span><span class="token operator" style="color:#393A34">=</span><span class="token plain"> </span><span class="token string" style="color:#e3116c">&quot;https://www.googleapis.com/auth/drive.readonly&quot;</span><span class="token punctuation" style="color:#393A34">;</span><br></span></code></pre></div></div>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="step-6-test-the-integration">Step 6: Test the Integration<a href="#step-6-test-the-integration" class="hash-link" aria-label="Direct link to Step 6: Test the Integration" title="Direct link to Step 6: Test the Integration" translate="no">​</a></h2>
+<ol>
+<li class="">Start your development server:</li>
+</ol>
+<div class="language-bash codeBlockContainer_Ckt0 theme-code-block" style="--prism-color:#393A34;--prism-background-color:#f6f8fa"><div class="codeBlockContent_QJqH"><pre tabindex="0" class="prism-code language-bash codeBlock_bY9V thin-scrollbar" style="color:#393A34;background-color:#f6f8fa"><code class="codeBlockLines_e6Vv"><span class="token-line" style="color:#393A34"><span class="token plain">npm start</span><br></span></code></pre></div></div>
+<ol start="2">
+<li class="">
+<p>Open the AlphaTab Playground page</p>
+</li>
+<li class="">
+<p>Look for the Google Drive icon button next to the &quot;Open File&quot; button</p>
+</li>
+<li class="">
+<p>Click it to sign in with your Google account</p>
+</li>
+<li class="">
+<p>After signing in, click the button again to open the file picker modal</p>
+</li>
+<li class="">
+<p>Select a folder and browse files</p>
+</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="oauth-scopes-explanation">OAuth Scopes Explanation<a href="#oauth-scopes-explanation" class="hash-link" aria-label="Direct link to OAuth Scopes Explanation" title="Direct link to OAuth Scopes Explanation" translate="no">​</a></h2>
+<p>You can adjust the <code>SCOPES</code> constant based on your needs:</p>
+<ul>
+<li class=""><code>https://www.googleapis.com/auth/drive.readonly</code> - <strong>Read-only access</strong> (recommended)</li>
+<li class=""><code>https://www.googleapis.com/auth/drive.file</code> - Access only to files created by the app</li>
+<li class=""><code>https://www.googleapis.com/auth/drive</code> - Full access to all Drive files (not recommended)</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="security-considerations">Security Considerations<a href="#security-considerations" class="hash-link" aria-label="Direct link to Security Considerations" title="Direct link to Security Considerations" translate="no">​</a></h2>
+<ol>
+<li class="">
+<p><strong>Never commit your credentials to Git</strong>:</p>
+<ul>
+<li class="">Consider using environment variables for production</li>
+<li class="">Add <code>.env</code> files to <code>.gitignore</code></li>
+</ul>
+</li>
+<li class="">
+<p><strong>Restrict your API key</strong>:</p>
+<ul>
+<li class="">Limit it to specific APIs</li>
+<li class="">Add HTTP referrer restrictions</li>
+</ul>
+</li>
+<li class="">
+<p><strong>Configure OAuth consent screen</strong>:</p>
+<ul>
+<li class="">Add proper privacy policy</li>
+<li class="">Request only necessary scopes</li>
+</ul>
+</li>
+<li class="">
+<p><strong>For production</strong>:</p>
+<ul>
+<li class="">Move credentials to environment variables</li>
+<li class="">Use a backend proxy for additional security</li>
+<li class="">Implement proper token refresh logic</li>
+</ul>
+</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="troubleshooting">Troubleshooting<a href="#troubleshooting" class="hash-link" aria-label="Direct link to Troubleshooting" title="Direct link to Troubleshooting" translate="no">​</a></h2>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="access-blocked-this-apps-request-is-invalid">&quot;Access blocked: This app&#x27;s request is invalid&quot;<a href="#access-blocked-this-apps-request-is-invalid" class="hash-link" aria-label="Direct link to &quot;Access blocked: This app&#x27;s request is invalid&quot;" title="Direct link to &quot;Access blocked: This app&#x27;s request is invalid&quot;" translate="no">​</a></h3>
+<ul>
+<li class="">Make sure you&#x27;ve added the correct authorized JavaScript origins</li>
+<li class="">Check that your OAuth consent screen is properly configured</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="failed-to-load-google-api-scripts">&quot;Failed to load Google API scripts&quot;<a href="#failed-to-load-google-api-scripts" class="hash-link" aria-label="Direct link to &quot;Failed to load Google API scripts&quot;" title="Direct link to &quot;Failed to load Google API scripts&quot;" translate="no">​</a></h3>
+<ul>
+<li class="">Check your internet connection</li>
+<li class="">Make sure the scripts aren&#x27;t blocked by ad blockers</li>
+<li class="">Check browser console for errors</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="invalid-api-key">&quot;Invalid API key&quot;<a href="#invalid-api-key" class="hash-link" aria-label="Direct link to &quot;Invalid API key&quot;" title="Direct link to &quot;Invalid API key&quot;" translate="no">​</a></h3>
+<ul>
+<li class="">Verify your API key is correct</li>
+<li class="">Make sure the API key restrictions allow your domain</li>
+<li class="">Ensure Google Drive API and Google Picker API are enabled</li>
+</ul>
+<h3 class="anchor anchorTargetStickyNavbar_Vzrq" id="token-expires-quickly">Token expires quickly<a href="#token-expires-quickly" class="hash-link" aria-label="Direct link to Token expires quickly" title="Direct link to Token expires quickly" translate="no">​</a></h3>
+<ul>
+<li class="">OAuth tokens typically expire after 1 hour</li>
+<li class="">Consider implementing token refresh logic for better UX</li>
+<li class="">For now, users can simply sign in again</li>
+</ul>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="next-steps">Next Steps<a href="#next-steps" class="hash-link" aria-label="Direct link to Next Steps" title="Direct link to Next Steps" translate="no">​</a></h2>
+<ol>
+<li class=""><strong>Implement file download</strong>: Add logic to download and load selected files into AlphaTab</li>
+<li class=""><strong>Add file filtering</strong>: Filter by file types (e.g., only show .gp, .gpx, .gp5 files)</li>
+<li class=""><strong>Improve UX</strong>: Add loading states, error messages, and better feedback</li>
+<li class=""><strong>Add persistence</strong>: Save the last selected folder to localStorage</li>
+</ol>
+<h2 class="anchor anchorTargetStickyNavbar_Vzrq" id="additional-resources">Additional Resources<a href="#additional-resources" class="hash-link" aria-label="Direct link to Additional Resources" title="Direct link to Additional Resources" translate="no">​</a></h2>
+<ul>
+<li class=""><a href="https://developers.google.com/drive/api/guides/about-sdk" target="_blank" rel="noopener noreferrer" class="">Google Drive API Documentation</a></li>
+<li class=""><a href="https://developers.google.com/picker/guides" target="_blank" rel="noopener noreferrer" class="">Google Picker API Guide</a></li>
+<li class=""><a href="https://developers.google.com/identity/protocols/oauth2/javascript-implicit-flow" target="_blank" rel="noopener noreferrer" class="">OAuth 2.0 for Client-side Web Applications</a></li>
+</ul></div><footer class="theme-doc-footer docusaurus-mt-lg"><div class="row margin-top--sm theme-doc-footer-edit-meta-row"><div class="col noPrint_WFHX"><a href="https://github.com/CoderLine/alphaTabWebsite/tree/main/docs/GOOGLE_DRIVE_SETUP.md" target="_blank" rel="noopener noreferrer" class="theme-edit-this-page"><svg fill="currentColor" height="20" width="20" viewBox="0 0 40 40" class="iconEdit_Z9Sw" aria-hidden="true"><g><path d="m34.5 11.7l-3 3.1-6.3-6.3 3.1-3q0.5-0.5 1.2-0.5t1.1 0.5l3.9 3.9q0.5 0.4 0.5 1.1t-0.5 1.2z m-29.5 17.1l18.4-18.5 6.3 6.3-18.4 18.4h-6.3v-6.2z"></path></g></svg>Edit this page</a></div><div class="col lastUpdated_JAkA"></div></div></footer></article><nav class="docusaurus-mt-lg pagination-nav" aria-label="Docs pages"></nav></div></div><div class="col col--3"><div class="tableOfContents_bqdL thin-scrollbar theme-doc-toc-desktop"><ul class="table-of-contents table-of-contents__left-border"><li><a href="#prerequisites" class="table-of-contents__link toc-highlight">Prerequisites</a></li><li><a href="#step-1-create-google-cloud-project" class="table-of-contents__link toc-highlight">Step 1: Create Google Cloud Project</a></li><li><a href="#step-2-enable-google-drive-api" class="table-of-contents__link toc-highlight">Step 2: Enable Google Drive API</a></li><li><a href="#step-3-create-oauth-20-credentials" class="table-of-contents__link toc-highlight">Step 3: Create OAuth 2.0 Credentials</a></li><li><a href="#step-4-create-api-key-for-picker" class="table-of-contents__link toc-highlight">Step 4: Create API Key (for Picker)</a></li><li><a href="#step-5-configure-the-component" class="table-of-contents__link toc-highlight">Step 5: Configure the Component</a></li><li><a href="#step-6-test-the-integration" class="table-of-contents__link toc-highlight">Step 6: Test the Integration</a></li><li><a href="#oauth-scopes-explanation" class="table-of-contents__link toc-highlight">OAuth Scopes Explanation</a></li><li><a href="#security-considerations" class="table-of-contents__link toc-highlight">Security Considerations</a></li><li><a href="#troubleshooting" class="table-of-contents__link toc-highlight">Troubleshooting</a><ul><li><a href="#access-blocked-this-apps-request-is-invalid" class="table-of-contents__link toc-highlight">&quot;Access blocked: This app&#39;s request is invalid&quot;</a></li><li><a href="#failed-to-load-google-api-scripts" class="table-of-contents__link toc-highlight">&quot;Failed to load Google API scripts&quot;</a></li><li><a href="#invalid-api-key" class="table-of-contents__link toc-highlight">&quot;Invalid API key&quot;</a></li><li><a href="#token-expires-quickly" class="table-of-contents__link toc-highlight">Token expires quickly</a></li></ul></li><li><a href="#next-steps" class="table-of-contents__link toc-highlight">Next Steps</a></li><li><a href="#additional-resources" class="table-of-contents__link toc-highlight">Additional Resources</a></li></ul></div></div></div></div></main></div></div></div><footer class="theme-layout-footer footer footer--dark"><div class="container container-fluid"><div class="row footer__links"><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Docs</div><ul class="footer__items clean-list"><li class="footer__item"><a class="footer__link-item" href="/guitar-tab-trainer/docs/introduction">Introduction</a></li><li class="footer__item"><a class="footer__link-item" href="/guitar-tab-trainer/docs/getting-started/installation-web">Installation</a></li><li class="footer__item"><a class="footer__link-item" href="/guitar-tab-trainer/docs/alphatex/introduction">AlphaTex</a></li></ul></div><div class="theme-layout-footer-column col footer__col"><div class="footer__title">Community</div><ul class="footer__items clean-list"><li class="footer__item"><a href="https://github.com/CoderLine/alphaTab" target="_blank" rel="noopener noreferrer" class="footer__link-item">GitHub<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li><li class="footer__item"><a href="https://stackoverflow.com/questions/tagged/alphatab" target="_blank" rel="noopener noreferrer" class="footer__link-item">Stack Overflow<svg width="13.5" height="13.5" aria-label="(opens in new tab)" class="iconExternalLink_nPIU"><use href="#theme-svg-external-link"></use></svg></a></li></ul></div></div><div class="footer__bottom text--center"><div class="footer__copyright">Copyright © 2026 Daniel Kuschny and Contributors</div></div></div></footer></div>
+</body>
+</html>

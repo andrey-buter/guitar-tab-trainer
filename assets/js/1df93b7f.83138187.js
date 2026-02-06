@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkalphatab_website=globalThis.webpackChunkalphatab_website||[]).push([[34583],{36866:(a,t,e)=>{e.r(t),e.d(t,{default:()=>l});e(96540);var s=e(56347),b=e(74848);function l(){return(0,b.jsx)(s.rd,{to:"/docs/playground"})}}}]);
